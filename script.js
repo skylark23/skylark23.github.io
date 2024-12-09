@@ -255,14 +255,12 @@ let currentImages = []; // Store the current images array
 const details = {
     London: {
         images: [
-            { src: "img/london1.png", text: "<ul><li>Phileas Fogg is a wealthy and mysterious man who lives a solitary life in London. </li><li>He hires a Frenchman Jean Passepartout as his new servant.</li><li>Passepartout calls Fogg “Exactitude personified” as Fogg carries out his daily routines with mathematical precision. </li></ul>" },
-            { src: "img/london2.png", text: "<ul><li>At the reform club, Fogg hears the news that a robber disguised as a gentleman has stolen 55,000 pounds from the Bank of England.</li> <li>Other members claim that the thief would have fled anywhere since the world is so large.</li></ul>" },
-            { src: "img/london3.png", text: "<ul><li>Fogg is aware of the opening of the new railway section in India and makes a bet with other club members that he can travel around the world in 80 days, wagering £20,000, half of his fortune.</li><li>On the same night of 2 October 1872, he and Passepartout depart on their journey.<br>&nbsp;</li></ul>" }
+            { src: "img/london2.png", text: "<ul><li>Phileas Fogg is a wealthy man who lives a solitary life in London. </li><li>He hires a Frenchman Jean Passepartout as his new servant.</li><li>Passepartout calls Fogg “Exactitude personified” as Fogg carries out his daily routines with mathematical precision. </li><li>Fogg is aware of the opening of the new railway section in India and makes a bet with other club members that he can travel around the world in 80 days, wagering £20,000, half of his fortune.</li><li>On the same night of 2 October 1872, he and Passepartout depart on their journey.</li></ul>" }
         ]
     },
     Suez: {
         images: [
-            { src: "img/Suez1.jpg", text: "<ul><li>Detective Fix of Scotland Yard intercepts Fogg whom he believes is a bank robber. This sets up the central conflict of the story – Fogg's race against time versus Fix's relentless pursuit.</li><li>Fix tries to influence the local counsel to withhold Fogg's passport, but his plan fails.</li><li>Fix befriends Passepartout without revealing his true identity and uses him to gain information on Fog and their travel plans.</li><li>Fogg meticulously tracks time and ensures the passports are stamped.</li></ul>" }
+            { src: "img/Suez1.jpg", text: "<ul><li>Detective Fix of Scotland Yard intercepts Fogg whom he believes is a bank robber. This sets up the central conflict of the story – Fogg's race against time versus Fix's relentless pursuit.</li><li>Fix tries to influence the local counsel to withhold Fogg's passport, but his plan fails.</li><li>Fogg meticulously tracks time and ensures the passports are stamped.</li></ul>" }
         ]
     },
     Bombay: {
@@ -272,8 +270,7 @@ const details = {
     },
     Allahabad: {
         images: [
-            { src: "img/allahabad1.png", text: "<ul><li>Sir Francis Cromarty, a brigadier general, educates Fogg about Indian society and customs.</li><li>Fogg purchases an elephant to traverse a region where the railway is incomplete, showing his calm and calculative traits. </li></ul>" },
-            { src: "img/allahabad2.png", text: "<ul><li>The group encounters a sati ritual and rescues Aouda, an innocent young woman, from getting sacrificed, showing the group's heroic and human traits.</li><li>Fogg rewards the guide by giving away the elephant, showing his generosity.</li> <li>They then take the train from Banaras to Calcutta.</li></ul>" }
+            { src: "img/allahabad1.png", text: "<ul><li>Sir Francis Cromarty, a brigadier general, educates Fogg about Indian society and customs.</li><li>Fogg purchases an elephant to traverse a region where the railway is incomplete, showing his calm and calculative traits. </li><li>The group encounters a sati ritual and rescues Aouda, an innocent young woman, from getting sacrificed, showing the group's heroic and human traits.</li><li>Fogg rewards the guide by giving away the elephant, showing his generosity.</li> <li>They then take the train from Banaras to Calcutta.</li></ul>" }
         ]
     },
     Calcutta: {
@@ -283,8 +280,7 @@ const details = {
     },
     HongKong: {
         images: [
-            { src: "img/hongkong1.png", text: "<ul><li>Aouda's relatives cannot be found in Hong Kong, so Fogg decides to take her with them to Europe.</li><li>Fix drugs Passepartout and gets separated from Fogg, but luckily he is able to board the \"Carnatic\" to Yokohama.</li><li>Fog and Aouda frantically search for Passepartout and miss \"Carnatic\".</li><li>Fog uses his quick thinking and offers a handsome reward to the  captain of another boat, the \"Tankadere\", to take him, Auoda, and Fix to Shanghai.</li></ul>" },
-            { src: "img/hongkong2.jpeg", text: "<ul><li>On their way to Shanghai, Fogg pushes the captain to keep sailing despite the bad weather.</li><li>Fogg's intelligent move to fire distress signals allowed them to board another ship from Shanghai to Yokohama.</ul>" }
+            { src: "img/hongkong1.png", text: "<ul><li>Aouda's relatives cannot be found, so Fogg decides to take her with them to Europe.</li><li>Fix drugs Passepartout and he gets separated from Fogg.</li><li>Fog search for Passepartout and miss \"Carnatic\".</li><li>Fog uses his quick thinking and offers a handsome reward to the  captain of another boat, the \"Tankadere\", to take him, Auoda, and Fix to Shanghai.</li><li>On their way to Shanghai, Fogg pushes the captain to keep sailing despite the bad weather.</li><li>Fogg's intelligent move to fire distress signals allowed them to board another ship from Shanghai to Yokohama.</li></ul>" }
         ]
     },
     Yokohama: {
@@ -294,7 +290,7 @@ const details = {
     },
     SanFrancisco: {
         images: [
-            { src: "img/sf1.png", text: "<ul><li>There is a brawl at a political rally in San Francisco.</li><li>Fogg has a scuffle with Colonel Proctor who tries to hit Fogg, but Fix intervenes and takes the hit.</li><li>Fogg pledges to return to America, find the Colonel, and take his revenge. This shows the importance of honor for Fogg.</li><li>Aouda and Passepartout have more respect for Fogg because of his honesty, generosity, and kindness.</li><li>Fix finally gets the arrest warrant. He changes his game and decides to help Fogg by any means possible to help him reach England and arrest Fogg.</li></ul>" }
+            { src: "img/sf1.png", text: "<ul><li>There is a brawl at a political rally in San Francisco.</li><li>Fogg has a scuffle with Colonel Proctor who tries to hit Fogg, but Fix intervenes and takes the hit.</li><li>Fogg pledges to return to America, find the Colonel, and take his revenge. This shows the importance of honor for Fogg.</li><li>Fix finally gets the arrest warrant. He changes his game and decides to help Fogg by any means possible to help him reach England and arrest Fogg.</li></ul>" }
         ]
     },
     Omaha: {
