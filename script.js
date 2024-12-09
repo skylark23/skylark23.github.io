@@ -8,9 +8,9 @@ const locations = [
     { name: "HongKong", coords: [22.3193, 114.1694], title:"Hong Kong / Shanghai, China", date: "November 7, 1872", info: "Arrived 24 hours late. Took a steamer to Yokahoma via Shanghai.<img src='img/map-HongKong.png' height=250 width=250></img>" },
     { name: "Yokohama", coords: [35.4437, 139.6380], title:"Yokohama, Japan", date: "November 14, 1872", info: "Passepartout reunite with Fogg and Aouda. Take ship to America.<img src='img/map-yokohama.png' height=250 width=250></img>" },
     { name: "SanFrancisco", coords: [37.7749, -122.4194], title:"San Francisco, USA", date: "December 3, 1872", info: "Arrived on schedule. Took \"Pacific Railroad\" to NYC via Omaha.<img src='img/map-sf.jpg' height=250 width=250></img>" },
-    { name: "Omaha", coords: [41.255525469397426, -95.8783027761861], title:"Omaha, USA", date: "December 24, 1872", info: "Eventful train and sledge ride.<img src='img/map-Omaha.png' height=250 width=250></img>" },
-    { name: "Nyc", coords: [40.7128, -74.0060], title:"New York City, USA", date: "December 24, 1872", info: "The adventure continues - new obstacle to cross the Atlantic.<img src='img/map-nyc.jpg' height=250 width=250></img>" },
-    { name: "Liverpool", coords: [53.409115322310925, -3.003058176663919], title:"Liverpool, United Kindom", date: "December 31, 1872", info: "Race back home. Dramatic arrival in Europe.<img src='img/map-Liverpool.jpg' height=250 width=250></img>" }
+    { name: "Omaha", coords: [41.255525469397426, -95.8783027761861], title:"Omaha, USA", date: "December 9, 1872", info: "Eventful train and sledge ride.<img src='img/map-Omaha.png' height=250 width=250></img>" },
+    { name: "Nyc", coords: [40.7128, -74.0060], title:"New York City, USA", date: "December 12, 1872", info: "The adventure continues - new obstacle to cross the Atlantic.<img src='img/map-nyc.jpg' height=250 width=250></img>" },
+    { name: "Liverpool", coords: [53.409115322310925, -3.003058176663919], title:"Liverpool, United Kindom", date: "December 21, 1872", info: "Race back home. Dramatic arrival in Europe.<img src='img/map-Liverpool.jpg' height=250 width=250></img>" }
 ];
 
 // Custom waypoints for each route
@@ -210,11 +210,13 @@ function updateNavigationButtons() {
 
   // Disable the backward button at the beginning of the journey
   backwardButton.disabled = currentIndex === 0;
+  
   backwardButton.style.opacity = backwardButton.disabled ? "0.5" : "1.0";
   backwardButton.style.cursor = backwardButton.disabled ? "not-allowed" : "pointer";
 
   // Disable the forward button at the end of the journey
   forwardButton.disabled = currentIndex === locations.length - 1;
+ 
   forwardButton.style.opacity = forwardButton.disabled ? "0.5" : "1.0";
   forwardButton.style.cursor = forwardButton.disabled ? "not-allowed" : "pointer";
 }
@@ -253,9 +255,9 @@ let currentImages = []; // Store the current images array
 const details = {
     London: {
         images: [
-            { src: "img/london1.webp", text: "<ul><li>Phileas Fogg is a wealthy and mysterious man who lives a solitary life in London. </li><li>He hires a Frenchman Jean Passepartout as his new servant.</li><li>Passepartout calls Fogg “Exactitude personified” as Fogg carries out his daily routines with mathematical precision. </li><li>At the reform club, Fogg learns about the opening of the new railway section in India and makes a bet with other club members that he can travel around the world in 80 days, wagering £20,000, half of his fortune.</li><li>On the same night of 2 October 1872, he and Passepartout depart on their journey.<br>&nbsp;</li></ul>" },
-            { src: "img/london2.webp", text: "Fogg begins his journey here, setting off from the iconic Reform Club." },
-            { src: "img/london1.webp", text: "The River Thames flows through the city, symbolizing the start of the adventure." }
+            { src: "img/london1.png", text: "<ul><li>Phileas Fogg is a wealthy and mysterious man who lives a solitary life in London. </li><li>He hires a Frenchman Jean Passepartout as his new servant.</li><li>Passepartout calls Fogg “Exactitude personified” as Fogg carries out his daily routines with mathematical precision. </li></ul>" },
+            { src: "img/london2.png", text: "<ul><li>At the reform club, Fogg hears the news that a robber disguised as a gentleman has stolen 55,000 pounds from the Bank of England.</li> <li>Other members claim that the thief would have fled anywhere since the world is so large.</li></ul>" },
+            { src: "img/london3.png", text: "<ul><li>Fogg is aware about the opening of the new railway section in India and makes a bet with other club members that he can travel around the world in 80 days, wagering £20,000, half of his fortune.</li><li>On the same night of 2 October 1872, he and Passepartout depart on their journey.<br>&nbsp;</li></ul>" }
         ]
     },
     Suez: {
@@ -265,22 +267,24 @@ const details = {
     },
     Bombay: {
         images: [
-            { src: "img/bombay1.jpg", text: "<ul><li>Passepartout's visit to a Hindu temple wearing shoes causes a huge commotion.</li><li>Fix sees this as an opportunity to get Passepartout's arrested to hold Fogg in India while he waits for the arrest warrant.</li></ul>" }
+            { src: "img/bombay1.png", text: "<ul><li>Passepartout's visit to a Hindu temple wearing shoes causes a huge commotion.</li><li>Fix sees this as an opportunity to get Passepartout's arrested to hold Fogg in India while he waits for the arrest warrant.</li></ul>" }
         ]
     },
     Allahabad: {
         images: [
-            { src: "img/allahabad1.jpg", text: "<ui><li>Sir Francis Cromarty, a brigadier general, educates Fogg about Indian society and customs.</li><li>Fogg purchases an elephant to traverse a region where the railway is incomplete, showing his calm and calculative traits. </li><li>The group encounters a sati ritual and rescues Aouda, an innocent young woman, from getting sacrificed, showing the group''s heroic and human traits.</li><li>Fogg rewards the guide by giving away the elephant, showing his generosity.</li> <li>They then take the train from Banaras to Calcutta.</li></ul>" }
+            { src: "img/allahabad1.png", text: "<ul><li>Sir Francis Cromarty, a brigadier general, educates Fogg about Indian society and customs.</li><li>Fogg purchases an elephant to traverse a region where the railway is incomplete, showing his calm and calculative traits. </li></ul>" },
+            { src: "img/allahabad2.png", text: "<ul><li>The group encounters a sati ritual and rescues Aouda, an innocent young woman, from getting sacrificed, showing the group''s heroic and human traits.</li><li>Fogg rewards the guide by giving away the elephant, showing his generosity.</li> <li>They then take the train from Banaras to Calcutta.</li></ul>" }
         ]
     },
     Calcutta: {
         images: [
-            { src: "img/calcutta1.png", text: "<ul><li>Fogg and Passepartout are arrested for the crime Passepartout had committed in Bombay. </li><li>Fogg posts bail and boards a ship to Hong Kong along with Passepartout and Aouda. </li><li>Fix follows them and boards the same ship.</li></ul> " }
+            { src: "img/calcutta1.png", text: "<ul><li>Fogg and Passepartout are arrested for the crime Passepartout had committed in Bombay.</li><li>Fogg posts bail and boards a ship to Hong Kong along with Passepartout and Aouda. </li><li>Fix follows them and boards the same ship.</li></ul> " }
         ]
     },
     HongKong: {
         images: [
-            { src: "img/hongkong1.jpeg", text: "<ul><li>Aouda's relatives cannot be found in Hong Kong, so Fogg decides to take her with them to Europe.</li><li>Fix drugs Passepartout and gets separated from Fogg, but luckily he is able to board the \"Carnatic\" to Yokohama.</li><li>Fog and Aouda frantically search for Passepartout and miss \"Carnatic\".</li><li>Fog uses his quick thinking and offers a handsome reward to the  captain of another boat, the \"Tankadere\" , to take him, Auoda and Fix to Shanghai.</li><li>On their way to Shanghai, Fogg pushes the captain to keep sailing inspite of bad weather.</li><li>Fogg's intelligent move to fire distress signals allowed them to board another ship from Shanghai to Yokohama.</ul>" }
+            { src: "img/hongkong1.png", text: "<ul><li>Aouda's relatives cannot be found in Hong Kong, so Fogg decides to take her with them to Europe.</li><li>Fix drugs Passepartout and gets separated from Fogg, but luckily he is able to board the \"Carnatic\" to Yokohama.</li><li>Fog and Aouda frantically search for Passepartout and miss \"Carnatic\".</li><li>Fog uses his quick thinking and offers a handsome reward to the  captain of another boat, the \"Tankadere\" , to take him, Auoda and Fix to Shanghai.</li></ul>" },
+            { src: "img/hongkong2.jpeg", text: "<ul><li>On their way to Shanghai, Fogg pushes the captain to keep sailing inspite of bad weather.</li><li>Fogg's intelligent move to fire distress signals allowed them to board another ship from Shanghai to Yokohama.</ul>" }
         ]
     },
     Yokohama: {
@@ -380,7 +384,9 @@ function updateArrowState() {
     const rightArrow = document.getElementById("arrow-right");
 
     leftArrow.disabled = currentSlide === 0; // Disable if on the first slide
+        currentSlide > 0 ? leftArrow.style.backgroundColor="#0056b3":'';
     rightArrow.disabled = currentSlide === currentImages.length - 1; // Disable if on the last slide
+        currentSlide < currentImages.length - 1 ? rightArrow.style.backgroundColor="#0056b3":'';
 
     // Optional: Style disabled buttons
     leftArrow.style.opacity = leftArrow.disabled ? "0.5" : "1.0";
