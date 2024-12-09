@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Around the World in 80 Days</title>
+    <style>
+        body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        }
+
+        /* Navbar styles */
+        #navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #333;
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0;
+        z-index: 1001;
+        }
+
+        #navbar a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        padding: 10px 15px;
+        transition: background 0.3s;
+        }
+
+        #navbar a:hover {
+        background-color: #575757;
+        border-radius: 5px;
+        }
+
+        /* Section styles */
+        .section {
+        display: none;
+        padding: 80px 20px; /* Padding to account for navbar height */
+        }
+
+        .section.active {
+        display: block;
+        }
+
+        /* Map height adjustment for the timeline section */
+        #map {
+        height: calc(100vh - 100px); /* Full height minus navbar and controls */
+        width: 100%;
+        }
+
+
+        #controls {
+        position: absolute;
+        top: 160px;
+        left: 20px;
+        z-index: 1000;
+        }
+
+        button {
+        padding: 10px 15px;
+        margin: 5px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 14px;
+        }
+
+        button:hover {
+        background-color: #0056b3;
+        }
+
+
+        #info-box {
+        position: absolute;
+        top: 210px;
+        left: 25px;
+        padding: 15px;
+        background: #fffbcc; /* Soft yellow background */
+        border: 1px solid #ffd700; /* Golden border */
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+        z-index: 1000;
+        width: 250px;
+        font-size: 14px;
+        font-weight: bold;
+        display: none; /* Initially hidden */
+        }
+
+        /* Info box city name link */
+        #info-box a {
+        color: #007bff;
+        text-decoration: underline;
+        cursor: pointer;
+        }
+
+        /* Overlay styles */
+
+        #overlay {
+        position: fixed;
+        top: 10%;
+        left: 10%;
+        width: 80%;
+        height: 80%;
+        background: white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        z-index: 2000;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        }
+
+        #overlay.hidden {
+        display: none;
+        }
+
+        .overlay-header {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin: 10px 0;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        }
+
+        .overlay-content {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        }
+
+        .overlay-images {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f4f4f4;
+        }
+
+        .overlay-images img {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 8px;
+        }
+
+        .overlay-arrows {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 24px;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        z-index: 10;
+        border-radius: 50%;
+        }
+
+        .arrow-left {
+        left: 10px;
+        }
+
+        .arrow-right {
+        right: 10px;
+        }
+
+        .overlay-text {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        font-size: 18px;
+        line-height: 1.6;
+        }
+
+
+        #close-overlay {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        }
+
+        /* Dim Background */
+        #dim-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+        z-index: 1800; /* Place it below the overlay */
+        opacity: 0; /* Initially invisible */
+        visibility: hidden; /* Ensure it’s hidden from view */
+        transition: opacity 0.3s ease; /* Smooth fade-in effect */
+        }
+
+        /* Show Dim Background */
+        #dim-background.active {
+        opacity: 1; /* Fully visible */
+        visibility: visible; /* Make it visible */
+        }
+
+
+
+
+        #dim-background.hidden {
+        display: none; /* Hide when not active */
+        }
+
+
+    </style>
+   
+   
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+   crossorigin=""></script>
+</head>
+<body>
+    <nav id="navbar">
+        <a href="#" data-target="home">Home</a>
+        <a href="#" data-target="plot-summary">Plot Summary</a>
+        <a href="#" data-target="timeline">Timeline</a>
+        <a href="#" data-target="conclusion">Conclusion</a>
+    </nav>
+
+    <div id="content">
+        <section id="home" class="section">
+            <h1>Home</h1>
+            <p>Welcome to the journey of Fogg around the world in 80 days!</p>
+        </section>
+        <section id="plot-summary" class="section">
+            <h1>Plot Summary</h1>
+            <p>Explore the captivating story of Phileas Fogg as he races against time to travel around the world in 80 days.</p>
+        </section>
+        <section id="timeline" class="section active">
+            <div id="map"></div>
+            <div id="controls">
+                <button id="backward">Back</button>
+                <button id="forward">Forward</button>
+            </div>
+            <div id="info-box"></div>
+        </section>
+        <section id="conclusion" class="section">
+            <h1>Conclusion</h1>
+            <p>Phileas Fogg's journey teaches us about determination, adventure, and the thrill of exploration!</p>
+        </section>
+    </div>
+
+<div id="dim-background" class="hidden"></div>
+<div id="overlay" class="hidden">
+    <div class="overlay-header"></div>
+    <div class="overlay-content">
+        <div class="overlay-images"></div>
+        <div class="overlay-text"></div>
+    </div>
+    <button id="close-overlay" class="overlay-close">X</button>
+</div>
+
+  
+<script>
+    // Location data (same as before)
+        const locations = [
+        { name: "London", coords: [51.5074, -0.1278], date: "October 2, 1872", info: "Starting point of the journey. sample text sample text" },
+        { name: "Paris", coords: [48.8566, 2.3522], date: "October 3, 1872", info: "First stop in France. sample text sample text <img src='https://media.timeout.com/images/106181719/1024/768/image.webp' height=250 width=200>" },
+        { name: "Brindisi", coords: [40.6389, 17.9457], date: "October 9, 1872", info: "Port city in Italy." },
+        { name: "Suez", coords: [29.9678, 32.5498], date: "October 12, 1872", info: "In Egypt at the Suez Canal." },
+        { name: "Bombay", coords: [19.076, 72.8777], date: "October 20, 1872", info: "Now known as Mumbai, India." },
+        { name: "Calcutta", coords: [22.5726, 88.3639], date: "October 25, 1872", info: "Now known as Kolkata, India." },
+        { name: "Hong Kong", coords: [22.3193, 114.1694], date: "November 6, 1872", info: "A British colony at the time." },
+        { name: "Yokohama", coords: [35.4437, 139.6380], date: "November 14, 1872", info: "A major Japanese port city." },
+        { name: "San Francisco", coords: [37.7749, -122.4194], date: "December 3, 1872", info: "Arriving in the United States." },
+        { name: "New York City", coords: [40.7128, -74.0060], date: "December 24, 1872", info: "A key stop before heading home." },
+        { name: "London", coords: [51.5074, -0.1278], date: "December 31, 1872", info: "Return to London, completing the journey." }
+        ];
+
+        let currentIndex = 0;
+        let map, marker, polyline;
+
+        // Initialize map (same as before)
+        function initializeMap() {
+        map = L.map('map').setView(locations[0].coords, 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+        }).addTo(map);
+
+        marker = L.marker(locations[0].coords).addTo(map);
+
+        // Initialize polyline with the first point (London)
+        polyline = L.polyline([locations[0].coords], { color: 'blue' }).addTo(map);
+
+        updateInfoBox();
+        updateNavigationButtons();  // Update the navigation buttons
+        }
+
+        function updateInfoBox() {
+        const infoBox = document.getElementById("info-box");
+        const { name, date, info } = locations[currentIndex];
+        infoBox.style.display = "block";
+        infoBox.innerHTML = `<strong>${name}</strong><br>${date}<br>${info}`;
+        }
+
+        function navigate(forward) {
+        if (forward) {
+            if (currentIndex < locations.length - 1) {
+                const nextLocation = locations[++currentIndex];
+                polyline.addLatLng(nextLocation.coords);
+                marker.setLatLng(nextLocation.coords);
+                map.panTo(nextLocation.coords);
+                updateInfoBox();
+            }
+        } else {
+            if (currentIndex > 0) {
+                polyline.setLatLngs(polyline.getLatLngs().slice(0, -1));
+                const prevLocation = locations[--currentIndex];
+                marker.setLatLng(prevLocation.coords);
+                map.panTo(prevLocation.coords);
+                updateInfoBox();
+            }
+        }
+        updateNavigationButtons();  // Update the navigation buttons after each move
+        }
+
+        function updateNavigationButtons() {
+        const backwardButton = document.getElementById("backward");
+        const forwardButton = document.getElementById("forward");
+
+        // Disable the backward button at the beginning of the journey
+        backwardButton.disabled = currentIndex === 0;
+        backwardButton.style.opacity = backwardButton.disabled ? "0.5" : "1.0";
+        backwardButton.style.cursor = backwardButton.disabled ? "not-allowed" : "pointer";
+
+        // Disable the forward button at the end of the journey
+        forwardButton.disabled = currentIndex === locations.length - 1;
+        forwardButton.style.opacity = forwardButton.disabled ? "0.5" : "1.0";
+        forwardButton.style.cursor = forwardButton.disabled ? "not-allowed" : "pointer";
+        }
+
+        // Navbar navigation
+        document.querySelectorAll("#navbar a").forEach(link => {
+        link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const target = e.target.getAttribute("data-target");
+
+            // Hide all sections
+            document.querySelectorAll(".section").forEach(section => {
+                section.classList.remove("active");
+            });
+
+            // Show the target section
+            document.getElementById(target).classList.add("active");
+
+            // Reinitialize map if switching to timeline
+            if (target === "timeline") {
+                map.invalidateSize(); // Ensures the map renders correctly
+            }
+        });
+        });
+
+        document.getElementById("forward").addEventListener("click", () => navigate(true));
+        document.getElementById("backward").addEventListener("click", () => navigate(false));
+
+        // Initialize map on page load
+        initializeMap();
+
+        let currentSlide = 0; // Track the current slide
+        let currentImages = []; // Store the current images array
+
+        // Detailed information for each location
+        const details = {
+            London: {
+                images: [
+                    { src: "https://lh3.googleusercontent.com/d/1wzfxaOEB_C3ZL_eEL_Nzy48CIQxKDBZr", text: "London, the bustling capital of England, is known for its historic landmarks like Big Ben." },
+                    { src: "img/london2.webp", text: "Fogg begins his journey here, setting off from the iconic Reform Club." },
+                    { src: "img/london1.webp", text: "The River Thames flows through the city, symbolizing the start of the adventure." }
+                ]
+            },
+            Paris: {
+                images: [
+                    { src: "paris1.jpg", text: "Paris, the City of Light, dazzles with its Eiffel Tower and cultural allure." },
+                    { src: "paris2.jpg", text: "Fogg explores the vibrant streets of Paris before moving on to the next destination." }
+                ]
+            },
+            // Add similar objects for other locations...
+        };
+
+        // Update info box
+        function updateInfoBox() {
+            const infoBox = document.getElementById("info-box");
+            const { name, date, info } = locations[currentIndex];
+            infoBox.style.display = "block";
+            infoBox.innerHTML = `<strong><a href="#" onclick="openOverlay('${name}');return false">${name}</a></strong><br>${date}<br>${info}`;
+        }
+
+        function openOverlay(city) {
+        const overlay = document.getElementById("overlay");
+        const dimBackground = document.getElementById("dim-background");
+        const overlayTitle = document.querySelector(".overlay-header");
+        const overlayText = document.querySelector(".overlay-text");
+        const overlayImages = document.querySelector(".overlay-images");
+
+        // Set overlay content
+        overlayTitle.textContent = city;
+
+        // Initialize slideshow
+        currentImages = details[city].images; // Set global images array
+        currentSlide = 0; // Reset slide index
+        updateSlideshow(overlayImages, overlayText);
+
+        // Show overlay and dim background
+        overlay.classList.remove("hidden");
+        dimBackground.classList.remove("hidden");
+        dimBackground.classList.add("active"); // Add active class to show the dim background
+        }
+
+        document.getElementById("close-overlay").addEventListener("click", () => {
+        const overlay = document.getElementById("overlay");
+        const dimBackground = document.getElementById("dim-background");
+
+        // Hide overlay and dim background
+        overlay.classList.add("hidden");
+        dimBackground.classList.remove("active"); // Remove active class to hide the dim background
+        });
+
+
+
+
+        // Update slideshow
+        function updateSlideshow(overlayImages, overlayText) {
+            overlayImages.innerHTML = `
+                <button class="overlay-arrows arrow-left" onclick="changeSlide(-1)" id="arrow-left">&lt;</button>
+                <img src="${currentImages[currentSlide].src}" alt="Slide ${currentSlide + 1}">
+                <button class="overlay-arrows arrow-right" onclick="changeSlide(1)" id="arrow-right">&gt;</button>
+            `;
+            overlayText.textContent = currentImages[currentSlide].text; // Update text for the current slide
+            updateArrowState(); // Update arrow state based on slide position
+        }
+
+        // Change slide
+        function changeSlide(direction) {
+            currentSlide = (currentSlide + direction + currentImages.length) % currentImages.length;
+            const overlayImages = document.querySelector(".overlay-images img");
+            const overlayText = document.querySelector(".overlay-text");
+
+            overlayImages.src = currentImages[currentSlide].src; // Update image
+            overlayText.textContent = currentImages[currentSlide].text; // Update text
+            updateArrowState(); // Update arrow state after changing slide
+        }
+
+        // Update arrow button state
+        function updateArrowState() {
+            const leftArrow = document.getElementById("arrow-left");
+            const rightArrow = document.getElementById("arrow-right");
+
+            leftArrow.disabled = currentSlide === 0; // Disable if on the first slide
+            rightArrow.disabled = currentSlide === currentImages.length - 1; // Disable if on the last slide
+
+            // Optional: Style disabled buttons
+            leftArrow.style.opacity = leftArrow.disabled ? "0.5" : "1.0";
+            rightArrow.style.opacity = rightArrow.disabled ? "0.5" : "1.0";
+            leftArrow.style.cursor = leftArrow.disabled ? "not-allowed" : "pointer";
+            rightArrow.style.cursor = rightArrow.disabled ? "not-allowed" : "pointer";
+        }
+
+        // Close overlay
+        document.getElementById("close-overlay").addEventListener("click", () => {
+            document.getElementById("overlay").classList.add("hidden");
+        });
+
+
+
+
+</script>
+   
+</body>
+</html>

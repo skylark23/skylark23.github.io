@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Around the World in 80 Days</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="leaflet/leaflet.css">
+    <script src="leaflet/leaflet.js"></script>
+</head>
+<body>
+    <nav id="navbar">
+     <!--    <a href="#" data-target="home">Home</a>
+        <a href="#" data-target="plot-summary">Plot Summary</a>
+        <a href="#" data-target="timeline">Timeline</a>
+        <a href="#" data-target="conclusion">Conclusion</a> -->
+        <div id="header-container">
+            <h1> Around The World in 80 Days</h1><h2>by Jules Verne</h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<h3>Presented By Aarnav Kumar</h3>
+        </div>
+    </nav>
+
+    
+
+    <div id="content">
+        <section id="home" class="section">
+            <h1>Home</h1>
+            <p>Welcome to the journey of Fogg around the world in 80 days!</p>
+        </section>
+        <section id="plot-summary" class="section">
+            <h1>Plot Summary</h1>
+            <p>Explore the captivating story of Phileas Fogg as he races against time to travel around the world in 80 days.</p>
+        </section>
+        <section id="timeline" class="section active">
+            <div id="map"></div>
+            <div id="controls">
+                <button id="backward">Back</button>
+                <button id="forward">Forward</button>
+            </div>
+            <div id="info-box"></div>
+        </section>
+        <section id="conclusion" class="section">
+            <h1>Conclusion</h1>
+            <p>Phileas Fogg's journey teaches us about determination, adventure, and the thrill of exploration!</p>
+        </section>
+    </div>
+
+<div id="dim-background" class="hidden"></div>
+<div id="overlay" class="hidden">
+    <div class="overlay-header"></div>
+    <div class="overlay-content">
+        <div class="overlay-images"></div>
+        <div class="overlay-text"></div>
+    </div>
+    <button id="close-overlay" class="overlay-close">X</button>
+</div>
+
+  
+
+    <script src="script.js"></script>
+</body>
+</html>

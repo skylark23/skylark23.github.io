@@ -1,0 +1,260 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* Navbar styles */
+#navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #333;
+  display: flex;
+  justify-content: space-around;
+  padding: 0px 0;
+  z-index: 1001;
+  
+}
+
+#navbar a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  padding: 10px 15px;
+  transition: background 0.3s;
+}
+
+#navbar a:hover {
+  background-color: #575757;
+  border-radius: 5px;
+}
+
+#header-container {
+  display: flex;
+  align-items: center;
+}
+
+
+#navbar h1 {
+  color: white;
+  text-decoration: none;
+  font-size: 20px;
+  transition: background 0.3s;
+  margin-right: 20px;
+}
+#navbar h2 {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  transition: background 0.3s;
+}
+
+#navbar h3 {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+
+
+
+/* Section styles */
+.section {
+  display: none;
+  padding: 80px 20px; /* Padding to account for navbar height */
+}
+
+.section.active {
+  display: block;
+}
+
+/* Map height adjustment for the timeline section */
+#map {
+  height: calc(100vh - 100px); /* Full height minus navbar and controls */
+  width: 100%;
+}
+
+
+#controls {
+  position: absolute;
+  top: 160px;
+  left: 20px;
+  z-index: 1000;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 5px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+
+#info-box {
+  position: absolute;
+  top: 210px;
+  left: 25px;
+  padding: 15px;
+  background: #fffbcc; /* Soft yellow background */
+  border: 1px solid #ffd700; /* Golden border */
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  z-index: 1000;
+  width: 250px;
+  font-size: 14px;
+  font-weight: bold;
+  display: none; /* Initially hidden */
+}
+
+/* Info box city name link */
+#info-box a {
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Overlay styles */
+
+#overlay {
+  position: fixed;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#overlay.hidden {
+  display: none;
+}
+
+.overlay-header {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 10px 0;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.overlay-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.overlay-images {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f4f4;
+}
+
+.overlay-images img {
+  max-width: 100%;
+  max-height: 95%;
+  border-radius: 8px;
+}
+
+.overlay-arrows {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  z-index: 10;
+  border-radius: 50%;
+}
+
+.arrow-left {
+  left: 10px;
+}
+
+.arrow-right {
+  right: 10px;
+}
+
+.overlay-text {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+
+#close-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Dim Background */
+#dim-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  z-index: 1800; /* Place it below the overlay */
+  opacity: 0; /* Initially invisible */
+  visibility: hidden; /* Ensure it’s hidden from view */
+  transition: opacity 0.3s ease; /* Smooth fade-in effect */
+}
+
+/* Show Dim Background */
+#dim-background.active {
+  opacity: 1; /* Fully visible */
+  visibility: visible; /* Make it visible */
+}
+
+
+
+
+#dim-background.hidden {
+  display: none; /* Hide when not active */
+}
+
+.numbered-icon {
+  background-color: #007bff; /* Marker background color */
+  color: white;
+  font-size: 14px;
+  text-align: center;
+  border-radius: 50%;
+  line-height: 25px; /* Matches the icon size */
+  width: 25px;
+  height: 25px;
+  border: 2px solid white; /* Optional: border around the marker */
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.6); /* Optional: shadow effect */
+}
+
+.marker-number {
+  font-weight: bold;
+}
