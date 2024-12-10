@@ -1,6 +1,6 @@
 // Location data
 const locations = [
-    { name: "London", coords: [51.5074, -0.1278], title:"London, United Kindom", date: "October 2, 1872", info: "Took train to egypt.<img src='img/map-london.jpg' height=250 width=250></img> "},
+    { name: "London", coords: [51.5074, -0.1278], title:"London, United Kindom", date: "October 2, 1872", info: "Took train to Egypt.<img src='img/map-london.jpg' height=250 width=250></img> "},
     { name: "Suez", coords: [29.9678, 32.5498], title:"Suez, Egypt", date: "October 9, 1872", info: "Took ship \"Mangolia\" to India.<img src='img/map-suez.jpeg' height=250 width=250></img> " },
     { name: "Bombay", coords: [19.076, 72.8777], title:"Bombay, India", date: "October 20, 1872", info: "Arrived 2 days before schedule. Took the \"Great Indian Peninsula Railway\" to Calcutta.<img src='img/map-bombay.jpg' height=250 width=250></img>" },
     { name: "Allahabad", coords: [25.4358, 81.8463], title:"Allahabad, India", date: "October 22, 1872", info: "No rail line between Allahabad and Banaras. Change of plans to reach Calcutta.<img src='img/map-allahabad.png' height=250 width=250></img>" },
@@ -280,12 +280,12 @@ const details = {
     },
     HongKong: {
         images: [
-            { src: "img/hongkong1.png", text: "<ul><li>Aouda's relatives cannot be found, so Fogg decides to take her with them to Europe.</li><li>Fix drugs Passepartout and he gets separated from Fogg.</li><li>Fog search for Passepartout and miss \"Carnatic\".</li><li>Fog uses his quick thinking and offers a handsome reward to the  captain of another boat, the \"Tankadere\", to take him, Auoda, and Fix to Shanghai.</li><li>On their way to Shanghai, Fogg pushes the captain to keep sailing despite the bad weather.</li><li>Fogg's intelligent move to fire distress signals allowed them to board another ship from Shanghai to Yokohama.</li></ul>" }
+            { src: "img/hongkong1.png", text: "<ul><li>Aouda's relatives cannot be found, so Fogg decides to take her with them to Europe.</li><li>Fix drugs Passepartout and he gets separated from Fogg.</li><li>Fogg search for Passepartout and miss \"Carnatic.\"</li><li>Fogg uses his quick thinking and offers a handsome reward to the  captain of another boat, the \"Tankadere,\" to take him, Auoda, and Fix to Shanghai.</li><li>On their way to Shanghai, Fogg pushes the captain to keep sailing despite the bad weather.</li><li>Fogg's intelligent move to fire distress signals allowed them to board another ship from Shanghai to Yokohama.</li></ul>" }
         ]
     },
     Yokohama: {
         images: [
-            { src: "img/yokohama1.png", text: "<ul><li>Passepartout, who is out of money, joins a circus on the strength of his past acrobatic abilities.</li><li>Fogg and Aouda find Passepartout working at the circus and reunite.</li><li>Fogg and Aouda get closer together. Aouda finds comfort and warmth in Fogg’s presence.</li><li>They all depart for San Francisco on the \”General Grant\”.</li></ul>" }
+            { src: "img/yokohama1.png", text: "<ul><li>Passepartout, who is out of money, joins a circus on the strength of his past acrobatic abilities.</li><li>Fogg and Aouda find Passepartout working at the circus and reunite.</li><li>Fogg and Aouda get closer together. Aouda finds comfort and warmth in Fogg’s presence.</li><li>They all depart for San Francisco on the \”General Grant.\”</li></ul>" }
         ]
     },
     SanFrancisco: {
