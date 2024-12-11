@@ -1,7 +1,7 @@
 // Location data
 const locations = [
     { name: "London", coords: [51.5074, -0.1278], title:"London, United Kindom", date: "October 2, 1872", info: "Took train to Egypt.<img src='img/map-london.jpg' height=250 width=250></img> "},
-    { name: "Suez", coords: [29.9678, 32.5498], title:"Suez, Egypt", date: "October 9, 1872", info: "Took ship \"Mangolia\" to India.<img src='img/map-suez.jpeg' height=250 width=250></img> " },
+    { name: "Suez", coords: [29.9678, 32.5498], title:"Suez, Egypt", date: "October 9, 1872", info: "Took ship \"Mongolia\" to India.<img src='img/map-suez.jpeg' height=250 width=250></img> " },
     { name: "Bombay", coords: [19.076, 72.8777], title:"Bombay, India", date: "October 20, 1872", info: "Arrived 2 days before schedule. Took the \"Great Indian Peninsula Railway\" to Calcutta.<img src='img/map-bombay.jpg' height=250 width=250></img>" },
     { name: "Allahabad", coords: [25.4358, 81.8463], title:"Allahabad, India", date: "October 22, 1872", info: "No rail line between Allahabad and Banaras. Change of plans to reach Calcutta.<img src='img/map-allahabad.png' height=250 width=250></img>" },
     { name: "Calcutta", coords: [22.5726, 88.3639], title:"Calcutta, India",  date: "October 25, 1872", info: "Lost gain of 2 days. Took ship \"Rangoon\" to Hong kong.<img src='img/map-calcutta.jpg' height=250 width=250></img>" },
