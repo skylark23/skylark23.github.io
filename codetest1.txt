@@ -457,3 +457,10 @@ class Program
 
 
 
+{
+  "JobId": 1,
+  "MethodName": "https://api.example.com/getData",
+  "Parameters": "{\"ApiUrl\":\"https://api.example.com/getData\",\"ApiKey\":\"12345-ABCDE\",\"UserId\":\"1001\",\"QueryLimit\":\"50\"}",
+  "Schedule": "{\"Days\":[\"Monday\",\"Wednesday\",\"Friday\"],\"Times\":[\"08:00:00\",\"14:00:00\",\"18:30:00\"]}"
+}
+
