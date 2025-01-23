@@ -1,0 +1,290 @@
+Here’s the regenerated code for your requirement targeting .NET Framework 4.7.2. Since .NET Framework does not support BackgroundService or IHost, we will use the traditional Windows Service approach.
+
+
+---
+
+1. Create a Windows Service Project
+
+1. Open Visual Studio and create a new Windows Service (.NET Framework) project.
+
+
+2. Name it something like JobSchedulerService.
+
+
+
+
+---
+
+2. Install Necessary NuGet Packages
+
+Install these NuGet packages:
+
+Newtonsoft.Json (for JSON handling)
+
+System.Data.SqlClient (for database connectivity)
+
+
+
+---
+
+3. Service Code Outline
+
+Service Class
+
+This is the main service that runs the job scheduler.
+
+using System;
+using System.ServiceProcess;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace JobSchedulerService
+{
+    public partial class JobSchedulerService : ServiceBase
+    {
+        private Timer _timer;
+        private readonly JobManager _jobManager;
+
+        public JobSchedulerService()
+        {
+            InitializeComponent();
+            _jobManager = new JobManager();
+        }
+
+        protected override void OnStart(string[] args)
+        {
+            // Load jobs on startup
+            _jobManager.LoadJobs();
+
+            // Set up a timer to check and execute jobs periodically (every 1 second)
+            _timer = new Timer(CheckJobs, null, 0, 1000);
+        }
+
+        private void CheckJobs(object state)
+        {
+            _jobManager.CheckAndExecuteJobs();
+        }
+
+        protected override void OnStop()
+        {
+            _timer?.Dispose();
+        }
+    }
+}
+
+
+---
+
+Main Entry Point
+
+This ensures the service runs correctly.
+
+using System.ServiceProcess;
+
+namespace JobSchedulerService
+{
+    static class Program
+    {
+        static void Main()
+        {
+            ServiceBase[] ServicesToRun;
+            ServicesToRun = new ServiceBase[]
+            {
+                new JobSchedulerService()
+            };
+            ServiceBase.Run(ServicesToRun);
+        }
+    }
+}
+
+
+---
+
+4. JobManager Class
+
+This class handles loading jobs from the database, scheduling them, and executing them.
+
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+
+namespace JobSchedulerService
+{
+    public class JobManager
+    {
+        private readonly string _connectionString = "Your SQL Connection String";
+        private List<Job> _jobs = new List<Job>();
+
+        public void LoadJobs()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                using (var command = new SqlCommand("GetJobSchedules", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            _jobs.Add(new Job
+                            {
+                                Id = reader.GetInt32(0),
+                                MethodName = reader.GetString(1),
+                                Parameters = JsonConvert.DeserializeObject<Dictionary<string, string>>(reader.GetString(2)),
+                                Schedule = JsonConvert.DeserializeObject<JobSchedule>(reader.GetString(3))
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        public void CheckAndExecuteJobs()
+        {
+            foreach (var job in _jobs)
+            {
+                if (job.Schedule.ShouldRunNow())
+                {
+                    Task.Run(() => ExecuteJob(job));
+                }
+            }
+        }
+
+        private async Task ExecuteJob(Job job)
+        {
+            // Call REST API
+            var responseJson = await CallApiAsync(job.MethodName, job.Parameters);
+
+            // Call Stored Procedure
+            CallStoredProcedure(job.Id, responseJson);
+        }
+
+        private async Task<string> CallApiAsync(string methodName, Dictionary<string, string> parameters)
+        {
+            var queryString = string.Join("&", parameters.Select(p => $"{p.Key}={p.Value}"));
+            var url = $"{methodName}?{queryString}";
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(url);
+                return await response.Content.ReadAsStringAsync();
+            }
+        }
+
+        private void CallStoredProcedure(int jobId, string jsonResponse)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                using (var command = new SqlCommand("ProcessJobResponse", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@JobId", jobId);
+                    command.Parameters.AddWithValue("@JsonResponse", jsonResponse);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+    }
+}
+
+
+---
+
+5. Job and JobSchedule Classes
+
+These are helper classes for job representation and scheduling logic.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace JobSchedulerService
+{
+    public class Job
+    {
+        public int Id { get; set; }
+        public string MethodName { get; set; }
+        public Dictionary<string, string> Parameters { get; set; }
+        public JobSchedule Schedule { get; set; }
+    }
+
+    public class JobSchedule
+    {
+        public List<DayOfWeek> Days { get; set; }
+        public List<TimeSpan> Times { get; set; }
+
+        public bool ShouldRunNow()
+        {
+            var now = DateTime.Now;
+            return Days.Contains(now.DayOfWeek) && Times.Any(t => t.Hours == now.Hour && t.Minutes == now.Minute);
+        }
+    }
+}
+
+
+---
+
+6. Installation and Deployment
+
+1. Build the solution.
+
+
+2. Install the service:
+
+Use InstallUtil.exe to register the service:
+
+InstallUtil.exe YourService.exe
+
+
+
+3. Start the service using services.msc or the net start command.
+
+
+
+
+---
+
+SQL Stored Procedure Format
+
+GetJobSchedules
+
+This procedure retrieves the job list:
+
+CREATE PROCEDURE GetJobSchedules
+AS
+BEGIN
+    SELECT 
+        JobId,
+        MethodName,
+        Parameters,   -- JSON string
+        Schedule      -- JSON string
+    FROM JobSchedules
+END
+
+ProcessJobResponse
+
+This processes the API response:
+
+CREATE PROCEDURE ProcessJobResponse
+    @JobId INT,
+    @JsonResponse NVARCHAR(MAX)
+AS
+BEGIN
+    -- Process the JSON response as needed
+END
+
+
+---
+
+This structure fully supports .NET Framework 4.7.2 and meets your requirements for scheduling, calling APIs, and interacting with a database. Let me know if you need further assistance!
+
