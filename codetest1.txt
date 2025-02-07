@@ -464,3 +464,131 @@ class Program
   "Schedule": "{\"Days\":[\"Monday\",\"Wednesday\",\"Friday\"],\"Times\":[\"08:00:00\",\"14:00:00\",\"18:30:00\"]}"
 }
 
+
+One common and robust solution (if you’re using SQL Server 2008 or later) is to use a table‐valued parameter. This lets you pass an entire table (in this case, a list of integers) into your stored procedure and use it directly in your IN clause.
+
+Below are the steps and sample code to implement this approach.
+
+
+---
+
+1. Create a User-Defined Table Type
+
+First, you need to define a table type that holds the list of job IDs:
+
+CREATE TYPE dbo.JobIDList AS TABLE
+(
+    JobID INT
+);
+
+This creates a new type that can be used as a parameter in your stored procedure.
+
+
+---
+
+2. Create the Stored Procedure with a Table-Valued Parameter
+
+Next, create your stored procedure with a parameter of the type you just defined. Note that the parameter must be marked as READONLY:
+
+CREATE PROCEDURE dbo.GetJobsByIDs
+    @JobIDs dbo.JobIDList READONLY
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM YourJobTable
+    WHERE JobID IN (SELECT JobID FROM @JobIDs);
+END
+
+In this example, YourJobTable is the table containing your job records. The procedure selects rows where the JobID is in the list passed via the @JobIDs parameter.
+
+
+---
+
+3. Executing the Stored Procedure
+
+To call the procedure, you need to declare and populate a table variable of type dbo.JobIDList:
+
+-- Declare a variable of the table type
+DECLARE @IDs dbo.JobIDList;
+
+-- Insert job IDs into the table variable
+INSERT INTO @IDs (JobID)
+VALUES (101), (102), (103);  -- Replace with your actual job IDs
+
+-- Execute the stored procedure
+EXEC dbo.GetJobsByIDs @JobIDs = @IDs;
+
+This passes the list of job IDs (101, 102, 103 in this example) to the stored procedure, which then uses it in the WHERE JobID IN (...) clause.
+
+
+---
+
+Alternative Approach: Passing a Comma-Separated String
+
+If you are unable to use table-valued parameters (for example, if you’re on an older version of SQL Server), another approach is to pass a comma-separated string of job IDs and then split the string into a table. You would need to write (or use an existing) splitting function.
+
+Here’s a brief example:
+
+1. Create a String Splitting Function:
+
+CREATE FUNCTION dbo.SplitString
+(
+    @List NVARCHAR(MAX),
+    @Delimiter CHAR(1)
+)
+RETURNS @Result TABLE (Value INT)
+AS
+BEGIN
+    DECLARE @pos INT = 0,
+            @nextPos INT,
+            @val NVARCHAR(100);
+
+    SET @List = LTRIM(RTRIM(@List)) + @Delimiter;
+
+    WHILE CHARINDEX(@Delimiter, @List, @pos + 1) > 0
+    BEGIN
+        SET @nextPos = CHARINDEX(@Delimiter, @List, @pos + 1);
+        SET @val = SUBSTRING(@List, @pos + 1, @nextPos - @pos - 1);
+        INSERT INTO @Result (Value)
+        VALUES (CAST(@val AS INT));
+        SET @pos = @nextPos;
+    END
+    RETURN;
+END
+
+
+2. Modify the Stored Procedure:
+
+CREATE PROCEDURE dbo.GetJobsByIDs_FromString
+    @JobIDs NVARCHAR(MAX)  -- e.g., '101,102,103'
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM YourJobTable
+    WHERE JobID IN (
+        SELECT Value
+        FROM dbo.SplitString(@JobIDs, ',')
+    );
+END
+
+
+3. Execute the Procedure:
+
+EXEC dbo.GetJobsByIDs_FromString @JobIDs = '101,102,103';
+
+
+
+While this method works, it’s generally preferable to use table-valued parameters when possible because they’re more type-safe and perform better.
+
+
+---
+
+Conclusion
+
+Using a table-valued parameter is an effective way to pass a list of integers (such as job IDs) into a stored procedure and use them within an IN clause. This method avoids the need to parse strings and generally offers better performance and maintainability.
+
+
