@@ -223,3 +223,137 @@ public class JobSchedule
 
 This should fulfill the requirements for scheduling and executing jobs based on SQL configurations! Let me know if you need help with specific parts.
 
+
+
+
+Implementing rate limiting in IBM WebSphere (Java-based) can be done using various approaches. The best method depends on your specific use case, such as API rate limiting, request throttling, or IP-based restrictions.
+
+
+---
+
+1. Using a Servlet Filter (Basic Approach)
+
+You can create a Servlet Filter to limit requests per IP or user within a specific time window.
+
+Example: Rate Limiting Using a Sliding Window
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class RateLimitFilter implements Filter {
+    private static final int MAX_REQUESTS_PER_MINUTE = 10; // Limit per IP
+    private final Map<String, AtomicInteger> requestCounts = new ConcurrentHashMap<>();
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        String clientIp = httpRequest.getRemoteAddr();
+
+        requestCounts.putIfAbsent(clientIp, new AtomicInteger(0));
+        int currentCount = requestCounts.get(clientIp).incrementAndGet();
+
+        if (currentCount > MAX_REQUESTS_PER_MINUTE) {
+            httpResponse.setStatus(429); // Too Many Requests
+            httpResponse.getWriter().write("Rate limit exceeded. Try again later.");
+            return;
+        }
+
+        chain.doFilter(request, response);
+
+        // Reset count every minute (simple implementation)
+        new Thread(() -> {
+            try {
+                Thread.sleep(60000);
+                requestCounts.get(clientIp).set(0);
+            } catch (InterruptedException ignored) {}
+        }).start();
+    }
+}
+
+Limits requests per IP to MAX_REQUESTS_PER_MINUTE.
+
+Returns HTTP 429 (Too Many Requests) if exceeded.
+
+Simple but not highly efficient—better for small-scale applications.
+
+
+
+---
+
+2. Using WebSphere Custom Security Policy (More Scalable)
+
+IBM WebSphere allows security policies to restrict request rates.
+
+1. Define a Request Throttle Policy in WebSphere Admin Console:
+
+Navigate to WebSphere Admin Console → Security → Security Policies.
+
+Create a new security policy and specify:
+
+Max Requests Per Second
+
+User/IP-based rules
+
+Action when exceeded (Reject/Queue requests)
+
+
+
+
+2. Apply to a Specific Web Module (Optional)
+
+Go to Applications → Your Application → Web Modules
+
+Apply the newly created security policy.
+
+
+
+
+
+---
+
+3. Using WebSphere DataPower API Gateway (For APIs)
+
+If your WebSphere setup includes DataPower, you can configure rate limiting directly:
+
+Define Rate Limit Rules in DataPower WebGUI.
+
+Use XSLT or GatewayScript to enforce limits based on API key, IP, or user.
+
+Apply different limits for different endpoints.
+
+
+Example in GatewayScript:
+
+var rateLimit = require('ratelimit');
+rateLimit.setMaxRequests(10, "minute", "client-ip");
+
+
+---
+
+4. Using a Reverse Proxy (Nginx or IBM HTTP Server)
+
+If WebSphere is behind IBM HTTP Server (IHS) or Nginx, you can implement rate limiting at the proxy level.
+
+Example (IBM HTTP Server with mod_ratelimit)
+
+<Location /yourapp>
+    SetOutputFilter RATE_LIMIT
+    SetEnv rate-limit 10
+</Location>
+
+Limits responses to 10 requests per second.
+
+
+---
+
+Which Approach Should You Use?
+
+Would you like help implementing a specific method in your environment?
+
