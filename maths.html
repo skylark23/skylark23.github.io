@@ -1,0 +1,17 @@
+<a href="#" id="zoomLink">Join Zoom Class</a>
+
+<script>
+  document.getElementById("zoomLink").addEventListener("click", function(e) {
+    e.preventDefault();
+
+    fetch("YOUR_GOOGLE_SCRIPT_WEBHOOK_URL", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: "ip=" + encodeURIComponent(location.hostname)
+    }).then(() => {
+      window.location.href = "YOUR_ZOOM_LINK_HERE";
+    });
+  });
+</script>
