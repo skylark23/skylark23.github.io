@@ -6,12 +6,14 @@
 
     fetch("https://script.google.com/macros/s/AKfycbxLvEXML3yhQf8tzuiOw8FVOipGPLahg4DOwY7nd5bDbSTy5l9_9tJIvupLut0K4Wkj/exec", {
       method: "POST",
+      mode: "no-cors",  // bypasses CORS error
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
       },
       body: "ip=" + encodeURIComponent(location.hostname)
-    }).then(() => {
-      window.location.href = "https://www.costco.com/s?keyword=Sunvilla+Palafox+";
     });
+
+    // Immediately redirect (no confirmation)
+    window.location.href = "https://www.costco.com/s?keyword=Sunvilla+Palafox+";
   });
 </script>
