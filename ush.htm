@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US History Quiz</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a historical theme, adapting from the space theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #2c3e50; /* A darker, historical blue-grey */
+            color: #ecf0f1; /* Light text color */
+        }
+        .container {
+            max-width: 90vw; /* Fluid width */
+            margin: 2rem auto;
+            background-color: #34495e; /* Slightly lighter historical grey */
+            border-radius: 1rem; /* Rounded corners */
+            padding: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+        .question-card {
+            background-color: #4a6480; /* A medium historical blue */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .option-button {
+            background-color: #5d7a9b; /* A lighter historical blue */
+            color: #ecf0f1;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%; /* Make buttons full width */
+            text-align: left; /* Align text to left */
+        }
+        .option-button:hover:not(.selected) {
+            background-color: #6a8ba6;
+            transform: translateY(-2px);
+        }
+        .option-button.selected {
+            border: 2px solid #f39c12; /* Highlight selected answer with an accent color */
+        }
+        .option-button.correct {
+            background-color: #27ae60; /* Green for correct */
+            border-color: #2ecc71;
+        }
+        .option-button.incorrect {
+            background-color: #c0392b; /* Red for incorrect */
+            border-color: #e74c3c;
+        }
+        .next-button {
+            background-color: #f39c12; /* Orange for next button */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .next-button:hover {
+            background-color: #e67e22;
+            transform: translateY(-2px);
+        }
+        .message-box {
+            background-color: #34495e;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div id="quiz-container" class="container w-full md:w-3/4 lg:w-2/3 xl:w-1/2">
+        <h1 class="text-3xl font-bold text-center mb-6">US History Quiz!</h1>
+
+        <div id="question-display" class="question-card">
+            <p id="question-text" class="text-xl font-semibold mb-4"></p>
+            <div id="answer-options" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <!-- Answer options will be rendered here by JavaScript -->
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row justify-between items-center mt-6">
+            <div id="score-display" class="text-lg font-medium mb-4 md:mb-0">
+                Score: 0 / 0
+            </div>
+            <button id="next-button" class="next-button">Next Question</button>
+        </div>
+
+        <div id="message-area" class="message-box hidden">
+            <!-- Feedback messages will appear here -->
+        </div>
+
+        <div id="quiz-end-screen" class="hidden text-center">
+            <h2 class="text-2xl font-bold mb-4">Quiz Complete!</h2>
+            <p id="final-score" class="text-xl mb-6">Your final score: 0 / 0</p>
+            <button id="restart-button" class="next-button">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Array of quiz questions for US History
+        const questions = [
+            // Unit 1: 1491-1763
+            {
+                question: "What was a primary motivation for Spanish exploration in the Americas?",
+                options: ["Seeking religious freedom", "Finding new trade routes to Asia", "Establishing democratic governments", "Cultivating new crops for Europe"],
+                answer: "Finding new trade routes to Asia"
+            },
+            {
+                question: "Who was the European explorer credited with the first voyage to the Americas in 1492?",
+                options: ["Ferdinand Magellan", "Vasco da Gama", "Christopher Columbus", "Amerigo Vespucci"],
+                answer: "Christopher Columbus"
+            },
+            {
+                question: "Which conquistador led the expedition that conquered the Aztec Empire?",
+                options: ["Francisco Pizarro", "Hernán Cortés", "Juan Ponce de León", "Vasco Núñez de Balboa"],
+                answer: "Hernán Cortés"
+            },
+            {
+                question: "Who was a prominent critic of the Spanish conquistadors' treatment of Native Americans?",
+                options: ["Bartolomé de las Casas", "Francisco Coronado", "Hernando de Soto", "Pedro Menéndez de Avilés"],
+                answer: "Bartolomé de las Casas"
+            },
+            {
+                question: "What was a devastating impact of European contact on Native American populations?",
+                options: ["Introduction of new agricultural techniques", "Spread of infectious diseases", "Technological advancements", "Increased political unity"],
+                answer: "Spread of infectious diseases"
+            },
+            {
+                question: "The origins of the transatlantic slave trade were primarily driven by the demand for labor in which sector?",
+                options: ["Mining precious metals", "Manufacturing textiles", "Plantation agriculture", "Fur trapping"],
+                answer: "Plantation agriculture"
+            },
+            {
+                question: "A major motivation for French exploration in North America was the search for:",
+                options: ["Gold and silver", "The Northwest Passage and fur trade", "Large agricultural lands", "New Christian converts"],
+                answer: "The Northwest Passage and fur trade"
+            },
+            {
+                question: "What crop became essential to the economic success of the Jamestown colony?",
+                options: ["Cotton", "Indigo", "Tobacco", "Rice"],
+                answer: "Tobacco"
+            },
+            {
+                question: "The tension between England and Spain in the late 16th century was significantly influenced by the reign of which monarch?",
+                options: ["Henry VIII", "Mary I", "Elizabeth I", "James I"],
+                answer: "Elizabeth I"
+            },
+            {
+                question: "What significant event occurred in Virginia in 1619, alongside the arrival of the first enslaved Africans?",
+                options: ["The founding of Plymouth Colony", "The signing of the Mayflower Compact", "The establishment of the House of Burgesses", "The end of the Anglo-Powhatan Wars"],
+                answer: "The establishment of the House of Burgesses"
+            },
+            {
+                question: "The conflict between the Virginia colonists and the Powhatan Confederacy is a key example of:",
+                options: ["Peaceful coexistence", "Religious conversion efforts", "Land disputes and cultural clashes", "Economic cooperation"],
+                answer: "Land disputes and cultural clashes"
+            },
+            {
+                question: "What major conflict in 1637 virtually eliminated the Pequot tribe in New England?",
+                options: ["King William's War", "Queen Anne's War", "The Pequot War", "The French and Indian War"],
+                answer: "The Pequot War"
+            },
+            {
+                question: "King Philip's War (1675-1676) was a conflict primarily between:",
+                options: ["French and English colonists", "Native Americans and English colonists", "Spanish and Native Americans", "Dutch and English colonists"],
+                answer: "Native Americans and English colonists"
+            },
+            {
+                question: "The brutal sea journey for enslaved Africans across the Atlantic to the Americas was known as the:",
+                options: ["Triangular Passage", "Great Migration", "Middle Passage", "Atlantic Crossing"],
+                answer: "Middle Passage"
+            },
+            {
+                question: "The Stono Rebellion (1739) in South Carolina led to:",
+                options: ["The abolition of slavery", "Stricter slave codes", "Increased slave imports", "Improved conditions for enslaved people"],
+                answer: "Stricter slave codes"
+            },
+            {
+                question: "What was the primary difference between Separatists and Puritans in early New England?",
+                options: ["Separatists wanted to reform the Church of England, Puritans wanted to separate from it.", "Separatists wanted to separate from the Church of England, Puritans wanted to purify it from within.", "Separatists were Catholic, Puritans were Protestant.", "Separatists believed in religious tolerance, Puritans did not."],
+                answer: "Separatists wanted to separate from the Church of England, Puritans wanted to purify it from within."
+            },
+            {
+                question: "Who famously declared, 'We shall be as a city upon a hill,' referring to the Massachusetts Bay Colony?",
+                options: ["William Penn", "John Winthrop", "Roger Williams", "Jonathan Edwards"],
+                answer: "John Winthrop"
+            },
+            {
+                question: "Which figure founded the colony of Rhode Island based on principles of religious freedom and separation of church and state?",
+                options: ["Anne Hutchinson", "John Winthrop", "William Bradford", "Roger Williams"],
+                answer: "Roger Williams"
+            },
+            {
+                question: "Pennsylvania was founded by William Penn as a haven for which religious group?",
+                options: ["Puritans", "Quakers", "Catholics", "Baptists"],
+                answer: "Quakers"
+            },
+            {
+                question: "The Enlightenment and the Great Awakening both challenged established authority, but in what different spheres?",
+                options: ["The Enlightenment in politics, the Great Awakening in economics.", "The Enlightenment in science, the Great Awakening in art.", "The Enlightenment in reason and government, the Great Awakening in religious fervor.", "The Enlightenment in agriculture, the Great Awakening in manufacturing."],
+                answer: "The Enlightenment in reason and government, the Great Awakening in religious fervor."
+            },
+            {
+                question: "Bacon's Rebellion (1676) in Virginia highlighted tensions between:",
+                options: ["Planters and merchants", "Colonists and Native Americans, and poor farmers and the colonial elite", "English and French settlers", "Slaves and indentured servants"],
+                answer: "Colonists and Native Americans, and poor farmers and the colonial elite"
+            },
+            {
+                question: "What was the primary cause of the French and Indian War?",
+                options: ["Disputes over fishing rights", "Competition for control of the Ohio River Valley", "Religious differences", "Conflicts over fur trade routes in the South"],
+                answer: "Competition for control of the Ohio River Valley"
+            },
+
+            // Unit 2: 1763-1800
+            {
+                question: "A significant consequence of the French and Indian War for Britain was:",
+                options: ["Reduced territory in North America", "Increased national debt and desire to tax colonists", "A new alliance with France", "The end of the British Empire"],
+                answer: "Increased national debt and desire to tax colonists"
+            },
+            {
+                question: "The Proclamation of 1763 aimed to:",
+                options: ["Encourage westward expansion", "Prevent colonial settlement west of the Appalachian Mountains", "Establish new trade routes", "Strengthen Native American alliances"],
+                answer: "Prevent colonial settlement west of the Appalachian Mountains"
+            },
+            {
+                question: "What was the primary impact of the Stamp Act on the colonists?",
+                options: ["It encouraged more trade with Britain", "It required colonists to quarter British soldiers", "It imposed direct taxes on printed materials, leading to widespread protest", "It granted colonists representation in Parliament"],
+                answer: "It imposed direct taxes on printed materials, leading to widespread protest"
+            },
+            {
+                question: "The Stamp Act Congress was significant because it:",
+                options: ["Declared independence from Britain", "Issued a unified colonial protest against British taxation", "Formed the Continental Army", "Negotiated a peace treaty with France"],
+                answer: "Issued a unified colonial protest against British taxation"
+            },
+            {
+                question: "The Boston Tea Party was a direct response to:",
+                options: ["The Sugar Act", "The Stamp Act", "The Tea Act", "The Quartering Act"],
+                answer: "The Tea Act"
+            },
+            {
+                question: "The Coercive Acts (Intolerable Acts) were passed by Britain primarily to:",
+                options: ["Punish Massachusetts for the Boston Tea Party", "Grant more self-governance to the colonies", "Promote colonial trade", "End the French and Indian War"],
+                answer: "Punish Massachusetts for the Boston Tea Party"
+            },
+            {
+                question: "What was the main purpose of the Second Continental Congress?",
+                options: ["To reconcile with Britain", "To declare war on France", "To manage the colonial war effort and declare independence", "To draft a new constitution"],
+                answer: "To manage the colonial war effort and declare independence"
+            },
+            {
+                question: "The Battle of Saratoga was a turning point in the Revolutionary War because it:",
+                options: ["Led to the surrender of Cornwallis", "Secured the crucial French alliance", "Marked the end of the war", "Was the first major victory for the colonists"],
+                answer: "Secured the crucial French alliance"
+            },
+            {
+                question: "George Washington's strategy as General of the Continental Army often involved:",
+                options: ["Large-scale conventional battles", "Avoiding major defeats and wearing down the British", "Quick decisive victories", "Relying on naval power"],
+                answer: "Avoiding major defeats and wearing down the British"
+            },
+            {
+                question: "The 'Cult of Republican Motherhood' after the Revolution suggested that women's primary role was to:",
+                options: ["Enter politics and government", "Educate their children to be virtuous citizens", "Join the military", "Pursue economic independence"],
+                answer: "Educate their children to be virtuous citizens"
+            },
+            {
+                question: "Shays' Rebellion (1786-1787) demonstrated the weaknesses of which governing document?",
+                options: ["The Declaration of Independence", "The Constitution", "The Articles of Confederation", "The Bill of Rights"],
+                answer: "The Articles of Confederation"
+            },
+            {
+                question: "The Great Compromise (Connecticut Compromise) at the Constitutional Convention resolved the debate over:",
+                options: ["Slavery", "Presidential powers", "Representation in Congress", "Judicial review"],
+                answer: "Representation in Congress"
+            },
+            {
+                question: "The Three-Fifths Compromise dealt with the issue of:",
+                options: ["Counting enslaved people for representation and taxation", "The number of states needed to ratify the Constitution", "The proportion of power between the states and federal government", "Voting rights for women"],
+                answer: "Counting enslaved people for representation and taxation"
+            },
+            {
+                question: "Federalists, during the ratification debate, generally supported:",
+                options: ["A strong central government", "A weak central government with strong state powers", "A bill of rights", "Agrarianism"],
+                answer: "A strong central government"
+            },
+            {
+                question: "Alexander Hamilton's financial plan aimed to:",
+                options: ["Reduce federal spending", "Pay off national and state debts, establish a national bank, and promote manufacturing", "Expand agricultural exports only", "Eliminate tariffs on imports"],
+                answer: "Pay off national and state debts, establish a national bank, and promote manufacturing"
+            },
+            {
+                question: "Southern opposition to Hamilton's financial plan, particularly the assumption of state debts, was largely due to:",
+                options: ["Their states having already paid off their debts", "Fear of increased federal power", "Their preference for industrial development", "Their desire for a weak national currency"],
+                answer: "Their states having already paid off their debts"
+            },
+            {
+                question: "The debate over strict versus loose (broad) interpretation of the Constitution arose primarily over the creation of the:",
+                options: ["Supreme Court", "Cabinet", "National Bank", "Post Office"],
+                answer: "National Bank"
+            },
+            {
+                question: "Which treaty, signed in 1794, improved relations with Britain but was controversial in the US?",
+                options: ["Pinckney's Treaty", "Treaty of Greenville", "Jay's Treaty", "Treaty of Paris"],
+                answer: "Jay's Treaty"
+            },
+            {
+                question: "The Whiskey Rebellion (1794) was a challenge to the new federal government's ability to:",
+                options: ["Collect taxes", "Maintain a standing army", "Regulate trade", "Appoint judges"],
+                answer: "Collect taxes"
+            },
+            {
+                question: "In his Farewell Address, George Washington warned against:",
+                options: ["Foreign alliances and political factions", "A strong national defense", "Territorial expansion", "Economic growth"],
+                answer: "Foreign alliances and political factions"
+            },
+            {
+                question: "The XYZ Affair led to a quasi-war with which country?",
+                options: ["Great Britain", "Spain", "France", "Netherlands"],
+                answer: "France"
+            },
+            {
+                question: "The Virginia and Kentucky Resolutions introduced the concept of:",
+                options: ["Federal supremacy", "Judicial review", "Nullification of federal laws by states", "A national bank"],
+                answer: "Nullification of federal laws by states"
+            },
+
+            // Unit 3: 1800-1844
+            {
+                question: "Marbury v. Madison (1803) established the principle of:",
+                options: ["States' rights", "Executive privilege", "Judicial review", "Popular sovereignty"],
+                answer: "Judicial review"
+            },
+            {
+                question: "Thomas Jefferson's Louisiana Purchase presented a constitutional challenge because:",
+                options: ["It involved a war with France", "The Constitution did not explicitly grant the president power to acquire new territory", "It required a national bank", "It was opposed by all states"],
+                answer: "The Constitution did not explicitly grant the president power to acquire new territory"
+            },
+            {
+                question: "A major cause of the War of 1812 was:",
+                options: ["Spanish aggression", "British impressment of American sailors and aid to Native Americans", "French land claims", "Disputes over the Oregon Territory"],
+                answer: "British impressment of American sailors and aid to Native Americans"
+            },
+            {
+                question: "The 'Era of Good Feelings' during Monroe's presidency was misleading due to:",
+                options: ["Intense political partisanship and sectional disputes", "Frequent wars with European powers", "Economic depression", "The rapid decline of industry"],
+                answer: "Intense political partisanship and sectional disputes"
+            },
+            {
+                question: "What was a key component of Henry Clay's American System?",
+                options: ["Free trade agreements", "Protective tariffs, internal improvements, and a national bank", "Abolition of slavery", "Limited government intervention in the economy"],
+                answer: "Protective tariffs, internal improvements, and a national bank"
+            },
+            {
+                question: "The Missouri Compromise of 1820 addressed the issue of:",
+                options: ["Tariff rates", "Expansion of slavery into new territories", "Native American removal", "International trade"],
+                answer: "Expansion of slavery into new territories"
+            },
+            {
+                question: "The Monroe Doctrine (1823) declared that the United States would:",
+                options: ["Intervene in European affairs", "Support new European colonies in the Americas", "Oppose further European colonization and interference in the Americas", "Form military alliances with European powers"],
+                answer: "Oppose further European colonization and interference in the Americas"
+            },
+            {
+                question: "Which industry exemplified the factory system and mass production during the Market Revolution?",
+                options: ["Shipbuilding", "Textile manufacturing", "Fur trade", "Iron smelting"],
+                answer: "Textile manufacturing"
+            },
+            {
+                question: "The 'Corrupt Bargain' refers to the controversial election of:",
+                options: ["1800", "1812", "1824", "1828"],
+                answer: "1824"
+            },
+            {
+                question: "Andrew Jackson's presidency is often associated with the 'spoils system,' which involved:",
+                options: ["Rewarding political supporters with government jobs", "Limiting presidential power", "Promoting civil service reform", "Establishing a national bank"],
+                answer: "Rewarding political supporters with government jobs"
+            },
+            {
+                question: "The Nullification Crisis during Jackson's presidency centered on:",
+                options: ["Native American removal", "The National Bank", "States' rights to nullify federal laws, specifically the Tariff of Abominations", "Western expansion"],
+                answer: "States' rights to nullify federal laws, specifically the Tariff of Abominations"
+            },
+            {
+                question: "Which Supreme Court case ruled that the Cherokee Nation was a sovereign entity, but was defied by Andrew Jackson?",
+                options: ["McCulloch v. Maryland", "Gibbons v. Ogden", "Worcester v. Georgia", "Dred Scott v. Sandford"],
+                answer: "Worcester v. Georgia"
+            },
+            {
+                question: "The forced removal of Cherokee and other Native American tribes from their ancestral lands in the southeastern United States is known as the:",
+                options: ["Great March", "Indian Removal Act", "Trail of Tears", "Long Walk"],
+                answer: "Trail of Tears"
+            },
+            {
+                question: "What was the main outcome of Jackson's 'Bank War'?",
+                options: ["The rechartering of the Second Bank of the United States", "The creation of a new national bank", "The destruction of the Second Bank of the United States", "Increased stability in the banking system"],
+                answer: "The destruction of the Second Bank of the United States"
+            },
+            {
+                question: "The Whig Party emerged primarily in opposition to the policies of:",
+                options: ["Thomas Jefferson", "James Madison", "Andrew Jackson", "James Monroe"],
+                answer: "Andrew Jackson"
+            },
+            {
+                question: "The Second Great Awakening was a religious revival that led to:",
+                options: ["A decline in church attendance", "Increased secularism", "Numerous social reform movements", "A return to traditional European religious practices"],
+                answer: "Numerous social reform movements"
+            },
+            {
+                question: "The Seneca Falls Convention (1848) is historically significant for its focus on:",
+                options: ["Abolitionism", "Temperance", "Women's rights, particularly suffrage", "Prison reform"],
+                answer: "Women's rights, particularly suffrage"
+            },
+            {
+                question: "Manifest Destiny was the belief that the United States was destined to:",
+                options: ["Become a global military power", "Expand its territory westward to the Pacific Ocean", "Colonize Africa", "Establish a worldwide democratic government"],
+                answer: "Expand its territory westward to the Pacific Ocean"
+            },
+            {
+                question: "The Battle of the Alamo was a key event during the struggle for independence of which territory?",
+                options: ["Oregon", "California", "Texas", "Florida"],
+                answer: "Texas"
+            },
+
+            // Unit 4: 1844-1877
+            {
+                question: "The annexation of Texas was controversial primarily due to the issue of:",
+                options: ["Its climate", "Slavery", "Its large Native American population", "Its economic viability"],
+                answer: "Slavery"
+            },
+            {
+                question: "President James K. Polk's presidency is most closely associated with the expansion of US territory through:",
+                options: ["The Louisiana Purchase", "The Gadsden Purchase", "The Mexican-American War", "The Treaty of Paris"],
+                answer: "The Mexican-American War"
+            },
+            {
+                question: "The Treaty of Guadalupe Hidalgo (1848) ended the Mexican-American War and resulted in the US gaining:",
+                options: ["Florida", "The Oregon Territory", "California and New Mexico", "The Great Plains"],
+                answer: "California and New Mexico"
+            },
+            {
+                question: "The Wilmot Proviso, though unsuccessful, proposed to:",
+                options: ["Abolish slavery in existing states", "Prohibit slavery in any territory acquired from Mexico", "Extend slavery to all new territories", "Grant universal suffrage"],
+                answer: "Prohibit slavery in any territory acquired from Mexico"
+            },
+            {
+                question: "The Compromise of 1850 included which key provision regarding California?",
+                options: ["It would be admitted as a slave state", "It would be admitted as a free state", "Its status would be decided by popular sovereignty", "It would remain a territory"],
+                answer: "It would be admitted as a free state"
+            },
+            {
+                question: "Harriet Beecher Stowe's 'Uncle Tom's Cabin' was written in response to the:",
+                options: ["Kansas-Nebraska Act", "Fugitive Slave Act of 1850", "Dred Scott decision", "Mexican-American War"],
+                answer: "Fugitive Slave Act of 1850"
+            },
+            {
+                question: "The Kansas-Nebraska Act (1854) introduced the concept of 'popular sovereignty' for deciding the issue of slavery, leading to:",
+                options: ["Peaceful resolution of the slavery debate", "The establishment of federal control over slavery", "Violent conflicts known as 'Bleeding Kansas'", "The immediate abolition of slavery"],
+                answer: "Violent conflicts known as 'Bleeding Kansas'"
+            },
+            {
+                question: "The 1857 Dred Scott decision by the Supreme Court ruled that:",
+                options: ["Enslaved people were citizens with rights", "Slavery was illegal in all territories", "African Americans, enslaved or free, could not be citizens and Congress could not prohibit slavery in territories", "The Missouri Compromise was constitutional"],
+                answer: "African Americans, enslaved or free, could not be citizens and Congress could not prohibit slavery in territories"
+            },
+            {
+                question: "John Brown's raid on Harpers Ferry (1859) aimed to:",
+                options: ["Negotiate a peace treaty with Native Americans", "Start an armed slave revolt", "Establish a new federal arsenal", "Prevent the Civil War"],
+                answer: "Start an armed slave revolt"
+            },
+            {
+                question: "Which state was the first to secede from the Union after the election of Abraham Lincoln in 1860?",
+                options: ["Virginia", "Georgia", "South Carolina", "Mississippi"],
+                answer: "South Carolina"
+            },
+            {
+                question: "The Battle of Antietam (1862) was significant because it:",
+                options: ["Was the first battle of the Civil War", "Was a decisive Union victory that led to the Emancipation Proclamation", "Led to the surrender of Robert E. Lee", "Marked the end of the war"],
+                answer: "Was a decisive Union victory that led to the Emancipation Proclamation"
+            },
+            {
+                question: "The Emancipation Proclamation (1863) declared slaves free in which areas?",
+                options: ["All US states", "Union-controlled states", "Confederate states still in rebellion", "Border states only"],
+                answer: "Confederate states still in rebellion"
+            },
+            {
+                question: "The Battles of Gettysburg and Vicksburg in 1863 were turning points for the Union because:",
+                options: ["They opened up new trade routes", "They secured control of the Mississippi River and halted the Confederate invasion of the North", "They led to a peace agreement", "They resulted in a stalemate"],
+                answer: "They secured control of the Mississippi River and halted the Confederate invasion of the North"
+            },
+            {
+                question: "The Gettysburg Address by Abraham Lincoln emphasized:",
+                options: ["The need for compromise with the South", "The importance of states' rights", "A new birth of freedom and the preservation of the Union", "The superiority of the Union military"],
+                answer: "A new birth of freedom and the preservation of the Union"
+            },
+            {
+                question: "Which amendment abolished slavery throughout the United States?",
+                options: ["13th Amendment", "14th Amendment", "15th Amendment", "19th Amendment"],
+                answer: "13th Amendment"
+            },
+            {
+                question: "The 14th Amendment primarily addressed:",
+                options: ["Voting rights for African American men", "Citizenship rights and equal protection under the law", "The prohibition of alcohol", "Women's suffrage"],
+                answer: "Citizenship rights and equal protection under the law"
+            },
+            {
+                question: "The purpose of the Freedmen's Bureau during Reconstruction was to:",
+                options: ["Punish former Confederates", "Provide aid and assistance to former slaves and poor whites", "Establish new plantations", "Oversee military occupation of the South"],
+                answer: "Provide aid and assistance to former slaves and poor whites"
+            },
+            {
+                question: "Black Codes enacted in the South after the Civil War aimed to:",
+                options: ["Grant full civil rights to African Americans", "Restrict the freedom and economic opportunities of African Americans", "Promote racial equality", "Encourage land ownership among former slaves"],
+                answer: "Restrict the freedom and economic opportunities of African Americans"
+            },
+            {
+                question: "The Ku Klux Klan emerged during Reconstruction with the primary goal of:",
+                options: ["Promoting civil rights", "Restoring white supremacy and intimidating African Americans and their allies", "Providing education to former slaves", "Supporting the Republican Party"],
+                answer: "Restoring white supremacy and intimidating African Americans and their allies"
+            },
+            {
+                question: "The impeachment of President Andrew Johnson was largely due to his conflict with Congress over:",
+                options: ["Foreign policy", "Economic issues", "Reconstruction policies", "His stance on Native American affairs"],
+                answer: "Reconstruction policies"
+            },
+            {
+                question: "The Compromise of 1877 effectively ended Reconstruction by:",
+                options: ["Granting African Americans full equality", "Removing federal troops from the South and solidifying Democratic control", "Establishing new federal agencies", "Reforming the electoral system"],
+                answer: "Removing federal troops from the South and solidifying Democratic control"
+            },
+
+            // Unit 5: 1877-1898 (Gilded Age)
+            {
+                question: "The term 'Gilded Age' (late 19th century) primarily suggests that the period was characterized by:",
+                options: ["Widespread social equality", "Significant political corruption and social inequality hidden by a thin layer of prosperity", "A golden age of artistic achievement", "Harmonious labor relations"],
+                answer: "Significant political corruption and social inequality hidden by a thin layer of prosperity"
+            },
+            {
+                question: "A key factor that led to the rise of big businesses in the Gilded Age was:",
+                options: ["Strict government regulation", "Technological innovations and new forms of corporate organization", "A decline in immigration", "Small-scale production"],
+                answer: "Technological innovations and new forms of corporate organization"
+            },
+            {
+                question: "Andrew Carnegie is most associated with which industry?",
+                options: ["Oil", "Railroads", "Steel", "Banking"],
+                answer: "Steel"
+            },
+            {
+                question: "John D. Rockefeller gained immense wealth and power in which industry?",
+                options: ["Textiles", "Automobiles", "Oil", "Coal"],
+                answer: "Oil"
+            },
+            {
+                question: "The Dawes Act of 1887 aimed to 'civilize' Native Americans by:",
+                options: ["Granting them full citizenship", "Breaking up tribal lands into individual allotments", "Establishing large reservations", "Promoting communal land ownership"],
+                answer: "Breaking up tribal lands into individual allotments"
+            },
+            {
+                question: "What was the purpose of institutions like the Carlisle Indian School?",
+                options: ["To preserve Native American cultures", "To assimilate Native American children into white American culture", "To provide advanced military training", "To promote tribal sovereignty"],
+                answer: "To assimilate Native American children into white American culture"
+            },
+            {
+                question: "The Battle of Wounded Knee (1890) marked the effective end of:",
+                options: ["The Civil War", "The Native American resistance to US expansion", "The Spanish-American War", "The Gilded Age"],
+                answer: "The Native American resistance to US expansion"
+            },
+            {
+                question: "The Chinese Exclusion Act of 1882 was the first law to:",
+                options: ["Grant universal suffrage", "Prohibit a specific ethnic group from immigrating to the US", "Regulate interstate commerce", "Establish national parks"],
+                answer: "Prohibit a specific ethnic group from immigrating to the US"
+            },
+            {
+                question: "Jane Addams was a prominent figure in the Progressive Era known for founding which settlement house?",
+                options: ["Hull House", "Faneuil Hall", "Ellis Island", "Tenement House"],
+                answer: "Hull House"
+            },
+            {
+                question: "Plessy v. Ferguson (1896) established the legal precedent of:",
+                options: ["Affirmative action", "Separate but equal", "Racial integration", "Universal suffrage"],
+                answer: "Separate but equal"
+            },
+            {
+                question: "Ida B. Wells was a journalist and activist who campaigned fiercely against:",
+                options: ["Alcohol consumption", "Women's suffrage", "Lynching and racial injustice", "Industrialization"],
+                answer: "Lynching and racial injustice"
+            },
+            {
+                question: "Booker T. Washington's approach to racial equality emphasized:",
+                options: ["Immediate political equality and agitation", "Economic self-sufficiency and vocational training for African Americans", "Mass protests and civil disobedience", "Migration to Africa"],
+                answer: "Economic self-sufficiency and vocational training for African Americans"
+            },
+            {
+                question: "W.E.B. Du Bois advocated for what approach to racial equality, often contrasting with Washington's views?",
+                options: ["Gradual economic advancement", "Political action and higher education for the 'talented tenth'", "Segregation and separatism", "Acceptance of social inequality"],
+                answer: "Political action and higher education for the 'talented tenth'"
+            },
+            {
+                question: "The Populist Movement (late 19th century) was primarily a political movement representing the interests of:",
+                options: ["Industrial capitalists", "Urban factory workers", "Farmers and common laborers seeking economic reform", "Southern plantation owners"],
+                answer: "Farmers and common laborers seeking economic reform"
+            },
+            {
+                question: "William Jennings Bryan was a prominent figure in the Populist and Democratic parties, famous for his 'Cross of Gold' speech, which advocated for:",
+                options: ["The gold standard", "Bimetallism (free silver)", "Protective tariffs", "A national sales tax"],
+                answer: "Bimetallism (free silver)"
+            }
+        ];
+
+        let currentQuestionIndex = 0; // Tracks the current question
+        let score = 0; // Tracks the user's score
+        let selectedOption = null; // Stores the currently selected answer option element
+
+        // Get references to DOM elements
+        const questionText = document.getElementById('question-text');
+        const answerOptionsDiv = document.getElementById('answer-options');
+        const scoreDisplay = document.getElementById('score-display');
+        const nextButton = document.getElementById('next-button');
+        const messageArea = document.getElementById('message-area');
+        const quizEndScreen = document.getElementById('quiz-end-screen');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-button');
+        const quizContainer = document.getElementById('quiz-container'); // The main quiz section
+
+        /**
+         * Displays the current question and its answer options.
+         */
+        function displayQuestion() {
+            // Hide end screen and show quiz container if necessary
+            quizEndScreen.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+
+            const question = questions[currentQuestionIndex];
+            questionText.textContent = question.question;
+            answerOptionsDiv.innerHTML = ''; // Clear previous options
+            messageArea.classList.add('hidden'); // Hide message area
+            nextButton.textContent = 'Next Question'; // Reset button text
+
+            // If it's the last question, change button text to 'Submit Quiz'
+            if (currentQuestionIndex === questions.length - 1) {
+                nextButton.textContent = 'Submit Quiz';
+            }
+
+            selectedOption = null; // Reset selected option for the new question
+
+            // Create buttons for each answer option
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-button', 'block');
+                button.addEventListener('click', () => selectAnswer(button, option));
+                answerOptionsDiv.appendChild(button);
+            });
+
+            // Update score display
+            updateScoreDisplay();
+        }
+
+        /**
+         * Handles the selection of an answer option.
+         * @param {HTMLElement} buttonElement - The button element that was clicked.
+         * @param {string} selectedAnswer - The text of the selected answer.
+         */
+        function selectAnswer(buttonElement, selectedAnswer) {
+            // Remove 'selected' class from previously selected option
+            if (selectedOption) {
+                selectedOption.classList.remove('selected');
+            }
+
+            // Add 'selected' class to the newly selected option
+            buttonElement.classList.add('selected');
+            selectedOption = buttonElement; // Store the currently selected button
+
+            // Disable all option buttons after selection to prevent changing answer
+            Array.from(answerOptionsDiv.children).forEach(button => {
+                button.disabled = true;
+            });
+
+            // Check if the selected answer is correct
+            const currentQuestion = questions[currentQuestionIndex];
+            if (selectedAnswer === currentQuestion.answer) {
+                // Correct answer feedback
+                messageArea.textContent = "Correct! ✨";
+                messageArea.classList.remove('hidden');
+                buttonElement.classList.add('correct'); // Style correct answer
+                score++; // Increment score only if correct
+            } else {
+                // Incorrect answer feedback
+                messageArea.textContent = `Incorrect. The correct answer was: ${currentQuestion.answer}`;
+                messageArea.classList.remove('hidden');
+                buttonElement.classList.add('incorrect'); // Style incorrect answer
+
+                // Highlight the correct answer if an incorrect one was chosen
+                Array.from(answerOptionsDiv.children).forEach(button => {
+                    if (button.textContent === currentQuestion.answer) {
+                        button.classList.add('correct');
+                    }
+                });
+            }
+
+            updateScoreDisplay(); // Update score display immediately after checking answer
+        }
+
+        /**
+         * Updates the score text displayed on the screen.
+         */
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = `Score: ${score} / ${currentQuestionIndex + (selectedOption ? 1 : 0)}`;
+        }
+
+
+        /**
+         * Moves to the next question or ends the quiz if all questions are answered.
+         */
+        function nextQuestion() {
+            // Ensure an option is selected before moving to the next question
+            if (!selectedOption && currentQuestionIndex < questions.length) {
+                messageArea.textContent = "Please select an answer before proceeding!";
+                messageArea.classList.remove('hidden');
+                return; // Prevent moving to next question without selection
+            }
+
+            currentQuestionIndex++; // Move to the next question
+
+            if (currentQuestionIndex < questions.length) {
+                // If there are more questions, display the next one
+                displayQuestion();
+                // Re-enable all option buttons for the new question
+                Array.from(answerOptionsDiv.children).forEach(button => {
+                    button.disabled = false;
+                });
+            } else {
+                // If all questions are answered, end the quiz
+                endQuiz();
+            }
+        }
+
+        /**
+         * Displays the quiz end screen with the final score.
+         */
+        function endQuiz() {
+            quizContainer.classList.add('hidden'); // Hide the quiz questions
+            quizEndScreen.classList.remove('hidden'); // Show the end screen
+            finalScoreDisplay.textContent = `Your final score: ${score} / ${questions.length}`;
+        }
+
+        /**
+         * Resets the quiz to its initial state.
+         */
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedOption = null;
+            displayQuestion(); // Start the quiz again
+        }
+
+        // Event listeners
+        nextButton.addEventListener('click', nextQuestion);
+        restartButton.addEventListener('click', restartQuiz);
+
+        // Initial call to display the first question when the page loads
+        document.addEventListener('DOMContentLoaded', displayQuestion);
+    </script>
+</body>
+</html>
