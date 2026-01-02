@@ -1,20 +1,51 @@
-<h1><a href="#" id="zoomLink">Join Zoom Class</a></h1>
+<h1>
+  <a href="#" id="zoomLink">Join Zoom Class</a>
+</h1>
+
+<p id="deleteContainer" style="display:none;">
+  <a href="#" id="deleteLink" style="color:red;">
+    Delete previous class recording for <span id="lastTime"></span>
+  </a>
+</p>
 
 <script>
-  document.getElementById("zoomLink").addEventListener("click", function(e) {
-    e.preventDefault();
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxLvEXML3yhQf8tzuiOw8FVOipGPLahg4DOwY7nd5bDbSTy5l9_9tJIvupLut0K4Wkj/exec";
+const ZOOM_URL = "https://us06web.zoom.us/j/3526108363?pwd=J8V6Ps7JhPgpZ4BpINi4PEA6X59Cpf.1";
 
-    fetch("https://script.google.com/macros/s/AKfycbxLvEXML3yhQf8tzuiOw8FVOipGPLahg4DOwY7nd5bDbSTy5l9_9tJIvupLut0K4Wkj/exec", {
-      method: "POST",
-      mode: "no-cors",  // bypasses CORS error
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-     body: "ip=" + encodeURIComponent(location.hostname) +
-            "&name=" + encodeURIComponent('Aarnav')
-    });
+// Join Zoom click
+document.getElementById("zoomLink").addEventListener("click", function(e) {
+  e.preventDefault();
 
-    // Immediately redirect (no confirmation)
-    window.location.href = "https://us06web.zoom.us/j/3526108363?pwd=J8V6Ps7JhPgpZ4BpINi4PEA6X59Cpf.1";
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "ip=" + encodeURIComponent(location.hostname) +
+          "&name=" + encodeURIComponent("Aarnav")
   });
+
+  window.location.href = ZOOM_URL;
+});
+
+// Load last record
+fetch(SCRIPT_URL + "?action=getLast")
+  .then(res => res.json())
+  .then(data => {
+    if (!data.empty) {
+      document.getElementById("lastTime").innerText = data.estTime;
+      document.getElementById("deleteContainer").style.display = "block";
+    }
+  });
+
+// Delete last record
+document.getElementById("deleteLink").addEventListener("click", function(e) {
+  e.preventDefault();
+
+  if (!confirm("Are you sure you want to delete the previous class record?")) {
+    return;
+  }
+
+  fetch(SCRIPT_URL + "?action=deleteLast")
+    .then(() => location.reload());
+});
 </script>
