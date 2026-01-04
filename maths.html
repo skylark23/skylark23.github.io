@@ -1,97 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Zoom Class</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
-    a {
-      cursor: pointer;
-      text-decoration: none;
-    }
-    #deleteContainer a {
-      color: red;
-      font-size: 0.95em;
-    }
-  </style>
-</head>
-<body>
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxLvEXML3yhQf8tzuiOw8FVOipGPLahg4DOwY7nd5bDbSTy5l9_9tJIvupLut0K4Wkj/exec";
+const ZOOM_URL = "https://us06web.zoom.us/j/3526108363?pwd=J8V6Ps7JhPgpZ4BpINi4PEA6X59Cpf.1";
 
-  <h1>
-    <a href="#" id="zoomLink">Join Zoom Class</a>
-  </h1>
+const sid = new URLSearchParams(window.location.search).get("sid");
+if (!sid) alert("Invalid student link");
 
-  <p id="deleteContainer" style="display:none;">
-    <a href="#" id="deleteLink">
-      Delete previous class recording for
-      <strong><span id="lastTime"></span></strong>
-    </a>
-  </p>
+// JOIN ZOOM
+document.getElementById("zoomLink").onclick = e => {
+  e.preventDefault();
 
-  <script>
-    const SCRIPT_URL =
-      "https://script.google.com/macros/s/AKfycbxLvEXML3yhQf8tzuiOw8FVOipGPLahg4DOwY7nd5bDbSTy5l9_9tJIvupLut0K4Wkj/exec";
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `sid=${encodeURIComponent(sid)}&ip=${encodeURIComponent(location.hostname)}`
+  });
 
-    const ZOOM_URL =
-      "https://us06web.zoom.us/j/3526108363?pwd=J8V6Ps7JhPgpZ4BpINi4PEA6X59Cpf.1";
+  window.location.href = ZOOM_URL;
+};
 
-    /* ========= JOIN ZOOM ========= */
-    document.getElementById("zoomLink").addEventListener("click", function (e) {
-      e.preventDefault();
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body:
-          "ip=" + encodeURIComponent(location.hostname) +
-          "&name=" + encodeURIComponent("Aarnav")
-      });
-
-      window.location.href = ZOOM_URL;
-    });
-
-    /* ========= JSONP CALLBACK ========= */
+// JSONP callback
 function showLast(data) {
   if (!data.empty) {
-    const utcDate = new Date(data.estTime);
-
-    const estFormatted = utcDate.toLocaleString("en-US", {
-      timeZone: "America/New_York",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true
-    });
-
+    const d = new Date(data.estTime);
     document.getElementById("lastTime").innerText =
-      estFormatted + " EST";
+      d.toLocaleString("en-US", {
+        timeZone: "America/New_York",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      }) + " EST";
 
     document.getElementById("deleteContainer").style.display = "block";
   }
 }
 
-    /* ========= LOAD LAST RECORD ========= */
-    const script = document.createElement("script");
-    script.src = SCRIPT_URL + "?action=getLast&callback=showLast";
-    document.body.appendChild(script);
+// Load last record
+const s = document.createElement("script");
+s.src = `${SCRIPT_URL}?action=getLast&sid=${encodeURIComponent(sid)}&callback=showLast`;
+document.body.appendChild(s);
 
-    /* ========= DELETE LAST RECORD ========= */
-    document.getElementById("deleteLink").addEventListener("click", function (e) {
-      e.preventDefault();
-
-      if (!confirm("Are you sure you want to delete the previous class record?")) {
-        return;
-      }
-
-      fetch(SCRIPT_URL + "?action=deleteLast")
-        .then(() => location.reload());
-    });
-  </script>
-
-</body>
-</html>
+// DELETE LAST
+document.getElementById("deleteLink").onclick = e => {
+  e.preventDefault();
+  if (!confirm("Delete previous class record?")) return;
+  fetch(`${SCRIPT_URL}?action=deleteLast&sid=${encodeURIComponent(sid)}`)
+    .then(() => location.reload());
+};
+</script>
