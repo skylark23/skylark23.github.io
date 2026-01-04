@@ -51,8 +51,7 @@ document.getElementById("zoomLink").onclick = e => {
   window.location.href = ZOOM_URL;
 };
 
-// JSONP callback
-function showLast(data) {
+  function showLast(data) {
   if (!data.empty) {
     const d = new Date(data.estTime);
     document.getElementById("lastTime").innerText =
@@ -65,10 +64,9 @@ function showLast(data) {
         minute: "2-digit",
         hour12: true
       }) + " EST";
-
-    document.getElementById("deleteContainer").style.display = "block";
   }
 }
+
 
 // Load last record
 const s = document.createElement("script");
