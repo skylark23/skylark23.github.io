@@ -6,13 +6,18 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      padding: 20px;
     }
     a {
       cursor: pointer;
       text-decoration: none;
     }
+    #zoomLink {
+      color: #2563eb;
+      font-size: 1.2em;
+    }
     #deleteContainer a {
-      color: red;
+      color: #dc2626;
       font-size: 0.95em;
     }
   </style>
@@ -33,25 +38,32 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxLvEXML3yhQf8tzuiOw
 const ZOOM_URL = "https://us06web.zoom.us/j/3526108363?pwd=J8V6Ps7JhPgpZ4BpINi4PEA6X59Cpf.1";
 const sid = new URLSearchParams(window.location.search).get("sid");
 
-if (!sid) alert("Invalid student link");
+if (!sid) {
+  alert("Invalid student link");
+}
 
 // JOIN ZOOM
 document.getElementById("zoomLink").onclick = e => {
   e.preventDefault();
   fetch(SCRIPT_URL, {
     method: "POST",
-    mode: "no-cors",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: `sid=${encodeURIComponent(sid)}&ip=${encodeURIComponent(location.hostname)}`
-  });
+  }).catch(err => console.error('Error logging click:', err));
+  
   window.location.href = ZOOM_URL;
 };
 
-// Load last record using fetch
-fetch(`${SCRIPT_URL}?action=getLast&sid=${encodeURIComponent(sid)}`)
+// Load last record using POST
+fetch(SCRIPT_URL, {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: `action=getLast&sid=${encodeURIComponent(sid)}`
+})
   .then(r => r.json())
   .then(data => {
-    if (!data.empty) {
+    console.log('getLast response:', data);
+    if (!data.empty && !data.error) {
       const d = new Date(data.estTime);
       document.getElementById("lastTime").innerText =
         d.toLocaleString("en-US", {
@@ -72,8 +84,21 @@ fetch(`${SCRIPT_URL}?action=getLast&sid=${encodeURIComponent(sid)}`)
 document.getElementById("deleteLink").onclick = e => {
   e.preventDefault();
   if (!confirm("Delete previous class record?")) return;
-  fetch(`${SCRIPT_URL}?action=deleteLast&sid=${encodeURIComponent(sid)}`)
-    .then(() => location.reload())
+  
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `action=deleteLast&sid=${encodeURIComponent(sid)}`
+  })
+    .then(r => r.json())
+    .then(data => {
+      console.log('deleteLast response:', data);
+      if (data.success) {
+        location.reload();
+      } else {
+        alert('Failed to delete record');
+      }
+    })
     .catch(err => console.error('Error deleting record:', err));
 };
 </script>
