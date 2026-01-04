@@ -18,11 +18,9 @@
   </style>
 </head>
 <body>
-
   <h1>
     <a href="#" id="zoomLink">Join Zoom Class</a>
   </h1>
-
   <p id="deleteContainer" style="display:none;">
     <a href="#" id="deleteLink">
       Delete previous class recording for
@@ -33,45 +31,41 @@
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxLvEXML3yhQf8tzuiOw8FVOipGPLahg4DOwY7nd5bDbSTy5l9_9tJIvupLut0K4Wkj/exec";
 const ZOOM_URL = "https://us06web.zoom.us/j/3526108363?pwd=J8V6Ps7JhPgpZ4BpINi4PEA6X59Cpf.1";
-
 const sid = new URLSearchParams(window.location.search).get("sid");
+
 if (!sid) alert("Invalid student link");
 
 // JOIN ZOOM
 document.getElementById("zoomLink").onclick = e => {
   e.preventDefault();
-
   fetch(SCRIPT_URL, {
     method: "POST",
     mode: "no-cors",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: `sid=${encodeURIComponent(sid)}&ip=${encodeURIComponent(location.hostname)}`
   });
-
   window.location.href = ZOOM_URL;
 };
 
-  function showLast(data) {
-  if (!data.empty) {
-    const d = new Date(data.estTime);
-    document.getElementById("lastTime").innerText =
-      d.toLocaleString("en-US", {
-        timeZone: "America/New_York",
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true
-      }) + " EST";
-  }
-}
-
-
-// Load last record using fetch instead of script tag
+// Load last record using fetch
 fetch(`${SCRIPT_URL}?action=getLast&sid=${encodeURIComponent(sid)}`)
   .then(r => r.json())
-  .then(showLast)
+  .then(data => {
+    if (!data.empty) {
+      const d = new Date(data.estTime);
+      document.getElementById("lastTime").innerText =
+        d.toLocaleString("en-US", {
+          timeZone: "America/New_York",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true
+        }) + " EST";
+      document.getElementById("deleteContainer").style.display = "block";
+    }
+  })
   .catch(err => console.error('Error loading last record:', err));
 
 // DELETE LAST
@@ -79,24 +73,9 @@ document.getElementById("deleteLink").onclick = e => {
   e.preventDefault();
   if (!confirm("Delete previous class record?")) return;
   fetch(`${SCRIPT_URL}?action=deleteLast&sid=${encodeURIComponent(sid)}`)
-    .then(() => location.reload());
+    .then(() => location.reload())
+    .catch(err => console.error('Error deleting record:', err));
 };
-
-  function findLastRowForStudent(sheet, guid) {
-  const data = sheet.getDataRange().getValues();
-  for (let i = data.length - 1; i > 0; i--) {
-    if (data[i][4] === guid) return i + 1;
-  }
-  return null;
-}
-
-function jsonp(obj, cb) {
-  const payload = cb ? `${cb}(${JSON.stringify(obj)})` : JSON.stringify(obj);
-  return ContentService
-    .createTextOutput(payload)
-    .setMimeType(ContentService.MimeType.JAVASCRIPT);
-}
 </script>
-
-  </body>
+</body>
 </html>
