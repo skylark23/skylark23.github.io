@@ -68,10 +68,11 @@ document.getElementById("zoomLink").onclick = e => {
 }
 
 
-// Load last record
-const s = document.createElement("script");
-s.src = `${SCRIPT_URL}?action=getLast&sid=${encodeURIComponent(sid)}&callback=showLast`;
-document.body.appendChild(s);
+// Load last record using fetch instead of script tag
+fetch(`${SCRIPT_URL}?action=getLast&sid=${encodeURIComponent(sid)}`)
+  .then(r => r.json())
+  .then(showLast)
+  .catch(err => console.error('Error loading last record:', err));
 
 // DELETE LAST
 document.getElementById("deleteLink").onclick = e => {
