@@ -28,7 +28,7 @@
   </h1>
   <p id="deleteContainer" style="display:none;">
     <a href="#" id="deleteLink">
-      Delete previous class recording for
+      Delete previous class recording for <strong><span id="studentName"></span></strong> for
       <strong><span id="lastTime"></span></strong>
     </a>
   </p>
@@ -62,7 +62,6 @@ fetch(SCRIPT_URL, {
 })
   .then(r => r.json())
   .then(data => {
-    console.log('getLast response:', data);
     if (!data.empty && !data.error) {
       const d = new Date(data.estTime);
       document.getElementById("lastTime").innerText =
@@ -75,6 +74,9 @@ fetch(SCRIPT_URL, {
           minute: "2-digit",
           hour12: true
         }) + " EST";
+      
+      // Display student name
+      document.getElementById("studentName").innerText = data.studentName || "Unknown";
       document.getElementById("deleteContainer").style.display = "block";
     }
   })
@@ -92,7 +94,6 @@ document.getElementById("deleteLink").onclick = e => {
   })
     .then(r => r.json())
     .then(data => {
-      console.log('deleteLast response:', data);
       if (data.success) {
         location.reload();
       } else {
