@@ -82,6 +82,21 @@ document.getElementById("deleteLink").onclick = e => {
   fetch(`${SCRIPT_URL}?action=deleteLast&sid=${encodeURIComponent(sid)}`)
     .then(() => location.reload());
 };
+
+  function findLastRowForStudent(sheet, guid) {
+  const data = sheet.getDataRange().getValues();
+  for (let i = data.length - 1; i > 0; i--) {
+    if (data[i][4] === guid) return i + 1;
+  }
+  return null;
+}
+
+function jsonp(obj, cb) {
+  const payload = cb ? `${cb}(${JSON.stringify(obj)})` : JSON.stringify(obj);
+  return ContentService
+    .createTextOutput(payload)
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
 </script>
 
   </body>
