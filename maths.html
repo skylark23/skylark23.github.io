@@ -7,6 +7,8 @@
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
     }
     a {
       cursor: pointer;
@@ -20,12 +22,70 @@
       color: #dc2626;
       font-size: 0.95em;
     }
+    #recordsSection {
+      margin-top: 40px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .pagination {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .pagination button {
+      padding: 8px 16px;
+      cursor: pointer;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    .pagination button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .export-btn {
+      padding: 10px 20px;
+      background-color: #059669;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .export-btn:hover {
+      background-color: #047857;
+    }
+    #recordsTable {
+      display: none;
+    }
+    .loading {
+      color: #666;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
   <h1>
     <a href="#" id="zoomLink">Join Zoom Class</a>
   </h1>
+  
   <p id="deleteContainer" style="display:none;">
     <a href="#" id="deleteLink">
       Delete previous class recording for <strong><span id="studentName"></span></strong> for
@@ -33,10 +93,43 @@
     </a>
   </p>
 
+  <div id="recordsSection">
+    <h2>Attendance History for <span id="studentNameHistory"></span></h2>
+    <p class="loading" id="loadingMessage">Loading records...</p>
+    
+    <div id="recordsTable" style="display:none;">
+      <button class="export-btn" id="exportBtn">Export to CSV</button>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>EST Date and Time</th>
+            <th>IST Date and Time</th>
+            <th>Website</th>
+          </tr>
+        </thead>
+        <tbody id="recordsBody">
+        </tbody>
+      </table>
+      
+      <div class="pagination">
+        <button id="prevBtn" disabled>Previous</button>
+        <span id="pageInfo">Page 1</span>
+        <button id="nextBtn">Next</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxLvEXML3yhQf8tzuiOw8FVOipGPLahg4DOwY7nd5bDbSTy5l9_9tJIvupLut0K4Wkj/exec";
 const ZOOM_URL = "https://us06web.zoom.us/j/3526108363?pwd=J8V6Ps7JhPgpZ4BpINi4PEA6X59Cpf.1";
 const sid = new URLSearchParams(window.location.search).get("sid");
+
+let allRecords = [];
+let currentPage = 1;
+const recordsPerPage = 10;
+let studentName = "";
 
 if (!sid) {
   alert("Invalid student link");
@@ -54,7 +147,7 @@ document.getElementById("zoomLink").onclick = e => {
   window.location.href = ZOOM_URL;
 };
 
-// Load last record using POST
+// Load last record
 fetch(SCRIPT_URL, {
   method: "POST",
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -75,12 +168,139 @@ fetch(SCRIPT_URL, {
           hour12: true
         }) + " EST";
       
-      // Display student name
       document.getElementById("studentName").innerText = data.studentName || "Unknown";
       document.getElementById("deleteContainer").style.display = "block";
     }
   })
   .catch(err => console.error('Error loading last record:', err));
+
+// Load all records
+fetch(SCRIPT_URL, {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: `action=getAllRecords&sid=${encodeURIComponent(sid)}`
+})
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById("loadingMessage").style.display = "none";
+    
+    if (data.error) {
+      document.getElementById("loadingMessage").textContent = "Error: " + data.error;
+      document.getElementById("loadingMessage").style.display = "block";
+      return;
+    }
+    
+    allRecords = data.records || [];
+    studentName = data.studentName || "Unknown";
+    document.getElementById("studentNameHistory").innerText = studentName;
+    
+    if (allRecords.length === 0) {
+      document.getElementById("loadingMessage").textContent = "No attendance records found.";
+      document.getElementById("loadingMessage").style.display = "block";
+    } else {
+      document.getElementById("recordsTable").style.display = "block";
+      displayRecords();
+    }
+  })
+  .catch(err => {
+    console.error('Error loading records:', err);
+    document.getElementById("loadingMessage").textContent = "Error loading records.";
+  });
+
+// Display records for current page
+function displayRecords() {
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const endIndex = startIndex + recordsPerPage;
+  const pageRecords = allRecords.slice(startIndex, endIndex);
+  
+  const tbody = document.getElementById("recordsBody");
+  tbody.innerHTML = "";
+  
+  pageRecords.forEach((record, index) => {
+    const row = tbody.insertRow();
+    const globalIndex = startIndex + index + 1;
+    
+    row.insertCell(0).textContent = globalIndex;
+    row.insertCell(1).textContent = formatDateTime(record.estTime);
+    row.insertCell(2).textContent = formatDateTime(record.istTime);
+    row.insertCell(3).textContent = record.website || "N/A";
+  });
+  
+  updatePagination();
+}
+
+function formatDateTime(dateValue) {
+  if (!dateValue) return "N/A";
+  
+  const d = new Date(dateValue);
+  return d.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  });
+}
+
+function updatePagination() {
+  const totalPages = Math.ceil(allRecords.length / recordsPerPage);
+  
+  document.getElementById("pageInfo").textContent = 
+    `Page ${currentPage} of ${totalPages} (${allRecords.length} total records)`;
+  
+  document.getElementById("prevBtn").disabled = currentPage === 1;
+  document.getElementById("nextBtn").disabled = currentPage === totalPages;
+}
+
+// Pagination controls
+document.getElementById("prevBtn").onclick = () => {
+  if (currentPage > 1) {
+    currentPage--;
+    displayRecords();
+  }
+};
+
+document.getElementById("nextBtn").onclick = () => {
+  const totalPages = Math.ceil(allRecords.length / recordsPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    displayRecords();
+  }
+};
+
+// Export to CSV
+document.getElementById("exportBtn").onclick = () => {
+  const csvContent = generateCSV();
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${studentName}_attendance_${new Date().toISOString().split('T')[0]}.csv`);
+  link.style.visibility = "hidden";
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+function generateCSV() {
+  let csv = "No.,EST Date and Time,IST Date and Time,Website\n";
+  
+  allRecords.forEach((record, index) => {
+    const row = [
+      index + 1,
+      formatDateTime(record.estTime),
+      formatDateTime(record.istTime),
+      record.website || "N/A"
+    ].map(field => `"${field}"`).join(",");
+    
+    csv += row + "\n";
+  });
+  
+  return csv;
+}
 
 // DELETE LAST
 document.getElementById("deleteLink").onclick = e => {
